@@ -5,7 +5,8 @@ var rerouter = require('../rerouter');
 var logger = require('../logger');
 
 const messageRouter = rerouter([
-  [/^sub(scribe)?/i, subscribeMsg]
+  [/^sub(scribe)?/i, subscribeMsg],
+  [/^stop$/i, unsubscribeMsg]
 ]);
 
 function subscribeMsg(msg, callback) {
@@ -24,6 +25,19 @@ function subscribeMsg(msg, callback) {
     }
     logger.info('already subscribed ' + sender);
     return callback(null, alreadyOn);
+  });
+}
+
+function unsubscribeMsg(msg, callback) {
+  const sender = msg.from;
+  const confirmation = 'You will no longer recieve any alert messages.';
+  logger.info('attemping to unsubscribe the number ' + sender);
+  Subscription.remove(sender, function (err, added) {
+    if (err) {
+      logger.error('there was a problem unsubscribing' + sender, err);
+      return callback(err);
+    }
+    return callback(null, confirmation);
   });
 }
 
