@@ -1,0 +1,14 @@
+{
+  "name": "sms-rockawayhelp",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "make"
+  },
+  "dependencies": {
+    "express": "3.0.1",
+    "twilio-js": "~0.1.1",
+    "habitat": "~0.3.2",
+    "mongoose": "~3.3.1"
+  }
+}
