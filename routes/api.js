@@ -4,10 +4,12 @@ var Subscription = require('../models/subscription');
 var rerouter = require('../rerouter');
 var logger = require('../logger');
 
+// SMS endpoints
+// -------------
 const messageRouter = rerouter([
   [/^sub(scribe)?/i, subscribeMsg],
-  [/^stop$/i, unsubscribeMsg]
-]);
+  [/^stop/i, unsubscribeMsg]
+], routeNotFound);
 
 function subscribeMsg(msg, callback) {
   const sender = msg.from;
@@ -30,7 +32,7 @@ function subscribeMsg(msg, callback) {
 
 function unsubscribeMsg(msg, callback) {
   const sender = msg.from;
-  const confirmation = 'You will no longer recieve any alert messages.';
+  const confirmation = 'You will no longer recieve any alert messages. To resubscibe, reply "subscribe".';
   logger.info('attemping to unsubscribe the number ' + sender);
   Subscription.remove(sender, function (err, added) {
     if (err) {
@@ -45,9 +47,10 @@ function routeNotFound(msg, cb) {
   return cb(null, 'Message received')
 };
 
+// HTTP endpoints
+// --------------
 exports.capture = function (req, res) {
-  const txt = req.body;
-  const msg = Message.fromTxtMsg(txt);
+  const msg = Message.fromTxtMsg(req.body);
   const sender = msg.from;
   var action, resp;
   msg.save(function (err, result) {
@@ -55,8 +58,7 @@ exports.capture = function (req, res) {
       logger.error('error saving the message', err);
       return (err.code = 500, res.send(500, err));
     }
-
-    action = messageRouter.find(msg.body) || routeNotFound;
+    action = messageRouter.find(msg.body);
     action(msg, function (err, response) {
       if (err) {
         logger.error('error running the action', err);
