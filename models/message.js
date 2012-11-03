@@ -9,7 +9,8 @@ const ResponseSchema = new Schema({
   },
   body: {
     type: String,
-    required: true
+    required: true,
+    trim: true,
   },
 });
 
@@ -28,7 +29,8 @@ const MessageSchema = new Schema({
   },
   body: {
     type: String,
-    required: true
+    required: true,
+    trim: true,
   },
   responses: {
     type: [ResponseSchema]

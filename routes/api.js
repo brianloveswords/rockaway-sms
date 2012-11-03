@@ -2,41 +2,56 @@ var Twilio = require('../twilio');
 var Message = require('../models/message');
 var Subscription = require('../models/subscription');
 var rerouter = require('../rerouter');
+var logger = require('../logger');
 
 const messageRouter = rerouter([
   [/^sub(scribe)?/i, subscribeMsg]
 ]);
 
 function subscribeMsg(msg, callback) {
-  var number = msg.from;
-  Subscription.add(number, function (err, added) {
-    if (err) return callback(err);
-    if (added) {
-      return callback(null, 'added number ' + number);
+  const sender = msg.from;
+  const confirmation = 'You have been added to the alert list. You can stop receiving notifications at any time by texting "stop"';
+  const alreadyOn = 'You are already on the list. If you wish to stop getting messages, reply with "stop"';
+  logger.info('attemping to subscribe the number ' + sender);
+  Subscription.add(sender, function (err, added) {
+    if (err) {
+      logger.error('there was a problem subscribing' + sender, err);
+      return callback(err);
     }
-    return callback(null, 'did not add number ' + number);
+    if (added) {
+      logger.info('successfully subscribed ' + sender);
+      return callback(null, confirmation);
+    }
+    logger.info('already subscribed ' + sender);
+    return callback(null, alreadyOn);
   });
 }
 
 function routeNotFound(msg, cb) {
-  console.log('route not found with', msg);
-  return cb()
+  return cb(null, 'Message received')
 };
 
 exports.capture = function (req, res) {
   const txt = req.body;
   const msg = Message.fromTxtMsg(txt);
-  var response = Twilio.TwiML.build();
-  var action;
+  const sender = msg.from;
+  var action, resp;
   msg.save(function (err, result) {
-    if (err) // #TODO: log this
+    if (err) {
+      logger.error('error saving the message', err);
       return (err.code = 500, res.send(500, err));
+    }
 
     action = messageRouter.find(msg.body) || routeNotFound;
     action(msg, function (err, response) {
-      console.dir(err);
-      console.log(response);
-      return res.send(response);
+      if (err) {
+        logger.error('error running the action', err);
+        return (err.code = 500, res.send(500, err));
+      }
+      resp = Twilio.SMS.reply({ to: sender, msg: response });
+      logger.info('replying with: ' + resp);
+      res.type('xml');
+      return res.send(resp);
     });
   });
 };
