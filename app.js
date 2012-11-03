@@ -20,7 +20,16 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.post('/', [api.verify], api.capture);
+// API endpoints
+// -------------
+app.post('/v1/receive', [
+  api.verify
+], api.capture);
+app.get('/v1/messages', api.listMessages);
+
+
+// User facing
+// -----------
 app.get('/', function (req, res) {
   res.send('sms app for rockawayhelp.com');
 });

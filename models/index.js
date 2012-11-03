@@ -1,6 +1,6 @@
 var env = require('../env');
 var mongoose = require('mongoose');
-var opts = env.get('mongo');
+var opts = env.get('mongo', {});
 
 var connection = mongoose.createConnection(
   opts.host || 'localhost',
