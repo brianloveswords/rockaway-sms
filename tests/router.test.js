@@ -13,22 +13,15 @@ const paths = [
   [/^hello world$/, truth],
 ];
 
-test('finding, simple', function (t) {
-  var result = rerouter(paths).find('hello world');
-  t.same(result.fn, truth);
-  t.end();
-});
-
-test('complex, simple', function (t) {
-  var result = rerouter(paths).find('hey sup yo');
-  t.same(result.fn, twoThings);
-  t.same(result.matches, ['sup', 'yo']);
+test('finding', function (t) {
+  var fn = rerouter(paths).find('hey party people');
+  t.same(fn(), ['party', 'people']);
   t.end();
 });
 
 test('routing', function (t) {
+  t.same(rerouter(paths).route('hey party people'), ['party', 'people']);
   t.notOk(rerouter(paths).route('loollll'), 'should not find anything');
   t.same(rerouter(paths).route('hello world'), true);
-  t.same(rerouter(paths).route('hey party people'), ['party', 'people']);
   t.end();
 });
