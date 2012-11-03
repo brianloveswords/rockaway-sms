@@ -25,7 +25,9 @@ app.configure('development', function(){
 app.post('/v1/receive', [
   api.verify
 ], api.capture);
+
 app.get('/v1/messages', api.listMessages);
+app.get('/v1/subscribers', api.listSubscribers);
 
 
 // User facing
