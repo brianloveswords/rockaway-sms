@@ -27,11 +27,6 @@ test('complex, simple', function (t) {
 });
 
 test('routing', function (t) {
-  var paths = [
-    [/^hey (.+?) (.+?)$/, function (one, two) { return [one, two] }],
-    [/^hello world$/, function () { return true }],
-  ];
-
   t.notOk(rerouter(paths).route('loollll'), 'should not find anything');
   t.same(rerouter(paths).route('hello world'), true);
   t.same(rerouter(paths).route('hey party people'), ['party', 'people']);
