@@ -1,25 +1,43 @@
 var Twilio = require('../twilio');
 var Message = require('../models/message');
+var Subscription = require('../models/subscription');
+var rerouter = require('../rerouter');
 
-function firstWord(string) { return string.trim().split(' ', 1) }
-function routeMessage(msg) {
-  const body = msg.body || '';
-  const action = firstWord(body).toLowerCase();
-   console.dir(action);
+const messageRouter = rerouter([
+  [/^sub(scribe)?/i, subscribeMsg]
+]);
+
+function subscribeMsg(msg, callback) {
+  var number = msg.from;
+  Subscription.add(number, function (err, added) {
+    if (err) return callback(err);
+    if (added) {
+      return callback(null, 'added number ' + number);
+    }
+    return callback(null, 'did not add number ' + number);
+  });
+}
+
+function routeNotFound(msg, cb) {
+  console.log('route not found with', msg);
+  return cb()
 };
 
 exports.capture = function (req, res) {
   const txt = req.body;
   const msg = Message.fromTxtMsg(txt);
   var response = Twilio.TwiML.build();
-
-  routeMessage(msg);
-
-  console.log('got a message:', txt);
+  var action;
   msg.save(function (err, result) {
     if (err) // #TODO: log this
       return (err.code = 500, res.send(500, err));
-    return res.send(response);
+
+    action = messageRouter.find(msg.body) || routeNotFound;
+    action(msg, function (err, response) {
+      console.dir(err);
+      console.log(response);
+      return res.send(response);
+    });
   });
 };
 
@@ -36,6 +54,18 @@ exports.listMessages = function listMessages (req, res) {
         date: msg.date,
         responses: msg.responses,
       };
+    });
+    return res.send(response);
+  });
+};
+
+exports.listSubscribers = function listSubscribers (req, res) {
+  const response = { status: 'ok' };
+  Subscription.find(function (err, subscribers) {
+    if (err) // #TODO: log this
+      return (err.code = 500, res.send(500, err));
+    response.subscribers = subscribers.map(function (sub) {
+      return { number: sub.number };
     });
     return res.send(response);
   });
