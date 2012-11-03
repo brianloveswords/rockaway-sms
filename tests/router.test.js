@@ -1,8 +1,8 @@
 var test = require('tap').test;
 var rerouter = require('../rerouter');
 
-function twoThings(one, two) {
-  return [one, two]
+function twoThings() {
+  return this.matches;
 }
 function truth() {
   return true;
@@ -22,7 +22,7 @@ test('finding, simple', function (t) {
 test('complex, simple', function (t) {
   var result = rerouter(paths).find('hey sup yo');
   t.same(result.fn, twoThings);
-  t.same(result.match, ['sup', 'yo']);
+  t.same(result.matches, ['sup', 'yo']);
   t.end();
 });
 

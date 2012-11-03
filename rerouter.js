@@ -8,15 +8,18 @@ module.exports = function rerouter(paths) {
       regexp = entry[0];
       fun = entry[1];
       if ((match = path.match(regexp)))
-        return {fn: fun, match: match.slice(1)};
+        return {fn: fun, matches: match.slice(1)};
     }
-    return [];
+    return null;
   };
   function route(path) {
+    var fun, matches;
     var result = find(path);
-    var fun = result.fn || identity;
-    var match = result.match;
-    return fun.apply(fun, match);
+    if (!result)
+      return;
+    fun = result.fn || identity;
+    matches = result.matches;
+    return fun.call({matches: matches});
   }
   return {
     route: route,
