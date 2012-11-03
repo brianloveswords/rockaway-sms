@@ -1,8 +1,3 @@
-
-/**
- * Module dependencies.
- */
-
 var express = require('express');
 var http = require('http');
 var path = require('path');
@@ -26,5 +21,8 @@ app.configure('development', function(){
 });
 
 app.post('/', [api.verify], api.capture);
+app.get('/', function (req, res) {
+  res.send('sms app for rockawayhelp.com');
+});
 
 module.exports = http.createServer(app);
