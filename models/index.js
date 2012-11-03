@@ -1,8 +1,8 @@
-var env = require('../env');
-var mongoose = require('mongoose');
-var opts = env.get('mongo', {});
+const env = require('../env');
+const mongoose = require('mongoose');
+const opts = env.get('mongo', {});
 
-var connection = mongoose.createConnection(
+const connection = mongoose.createConnection(
   opts.host || 'localhost',
   opts.db || 'rockaway-sms',
   opts.port || '27017'
