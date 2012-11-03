@@ -1,5 +1,5 @@
 function identity(x) { return x };
-module.exports = function rerouter(paths) {
+module.exports = function rerouter(paths, fallthrough) {
   function find(path) {
     var idx = paths.length;
     var regexp, fun, entry, match, meta;
@@ -15,6 +15,11 @@ module.exports = function rerouter(paths) {
         });
       }
     }
+    if (fallthrough)
+      return fallthrough.bind({
+        input: path,
+        original: fallthrough
+      });
     return null;
   }
 

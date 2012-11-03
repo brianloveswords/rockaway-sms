@@ -25,3 +25,9 @@ test('routing', function (t) {
   t.same(rerouter(paths).route('hello world'), true);
   t.end();
 });
+
+test('fallthrough', function (t) {
+  var router = rerouter(paths, function () { return 'fallthrough' });
+  t.same(router.route('nope nothing'), 'fallthrough');
+  t.end();
+});
