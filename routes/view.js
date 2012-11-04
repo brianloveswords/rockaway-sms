@@ -17,8 +17,10 @@ exports.subscribers = function subscribers (req, res) {
   });
 };
 exports.user = function user(req, res) {
+  const user = req.user;
   res.render('user.html', {
     page: 'user',
-    user: req.user
+    user: user,
+    messages: user.messages.reverse()
   });
 };

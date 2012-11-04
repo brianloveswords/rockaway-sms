@@ -9,7 +9,7 @@ exports.announce = function announce(req, res) {
     res.send(400, 'need to set a message');
   User.broadcast(message, function (err, users) {
     if (err)
-      res.send(500, err);
+      return res.send(500, err);
     return res.redirect('/');
   });
 };
@@ -18,6 +18,18 @@ exports.dismissLatest = function dismissLatest(req, res) {
   const user = req.user;
   user.requiresAttention = false;
   user.save(function (err) {
+    if (err)
+      return res.send(500, err);
+    return res.redirect('back');
+  })
+};
+
+exports.reply = function reply(req, res) {
+  const message = req.body.message;
+  const user = req.user;
+  if (!message)
+    res.send(400, 'need to set a message');
+  user.sendReply({ body: message }, function (err) {
     if (err)
       return res.send(500, err);
     return res.redirect('back');

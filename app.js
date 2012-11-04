@@ -23,7 +23,6 @@ app.configure('development', function(){
 const api = require('./routes/api');
 const view = require('./routes/view');
 const subscription = require('./routes/subscription');
-const debug = require('./routes/debug');
 const user = require('./routes/user');
 
 // API endpoints
@@ -81,5 +80,8 @@ app.get('/user/:id', [
   user.getOne('id')
 ], view.user);
 
+app.post('/user/:id/reply', [
+  user.getOne('id')
+], user.reply);
 
 module.exports = http.createServer(app);

@@ -23,13 +23,75 @@ form.reply textarea {
   display: inline;
 }
 
-.message-byline {
-  color: #aaa;
+.reply-form {
+  float: right;
 }
-.message-byline .who {
-  color: #333;
+.reply-form .reply-field {
+  width: 480px
 }
 
-.message-byline .when {
-  color: #555;
+.message-log {
+  clear: both;
+  list-style: none;
+  background: #eee;
+  padding: 15px 0;
+  margin: 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
 }
+
+.message-log li {
+  padding: 5px 20px 5px 20px;
+}
+
+.message-log li.direction-outgoing {
+  text-align: right;
+}
+
+.message-log li.type-announcement,
+.message-log li.type-subscribe,
+.message-log li.type-unsubscribe {
+  background: #ddd;
+  text-align: center;
+  font-size: 12px;
+}
+
+.message-log li::before {
+  font-weight: bold;
+  color: #aaa;
+}
+
+/** define basics first */
+.message-log li.direction-outgoing::before {
+  color: #daa;
+  content: 'Response';
+}
+.message-log li.direction-incoming::before {
+  color: #aad;
+  content: 'Incoming';
+}
+
+/** override with more specific */
+.message-log li.type-announcement::before {
+  color: #aaa;
+  content: 'Announcement';
+}
+.message-log li.type-subscribe::before {
+  color: #aaa;
+  content: 'Subscribed  to announcements';
+}
+.message-log li.type-unsubscribe::before {
+  color: #aaa;
+  content: 'Unsubscribed to announcements';
+}
+
+.message-log li.type-unsubscribe p,
+.message-log li.type-subscribe p {
+  display: none;
+}
+
+.message-log li .date {
+  font-size: 13px;
+  color: #999;
+}
+

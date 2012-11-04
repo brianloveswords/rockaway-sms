@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block "body" %}
+  <h1>
+    <form method="post" action="reply" class="reply-form form-horizontal">
+      <input type="text"
+             name="message"
+             maxlength="160"
+             placeholder="Type your reply here"
+             class="input-large reply-field"
+             required>
+      <input type="submit" value="Reply" class="btn btn-primary">
+    </form>
+    {{ user.number }}
+  </h1>
+  
+  <ul class="message-log">
+  {% for message in messages %}
+    <li class="direction-{{ message.direction }} type-{{ message.type }}">
+      <span class="date"> {{ message.date | dateFmt }}</span>
+      <p class="message">
+        {{ message.body | entities }}
+      </p>
+    </li>
+  {% endfor %}
+  </ul>
+
+{% endblock %}

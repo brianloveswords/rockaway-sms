@@ -9,6 +9,10 @@ env.addFilter('entities', function (string) {
   return string.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 });
 
+env.addFilter('json', function (thing) {
+  return JSON.stringify(thing);
+})
+
 env.addFilter('highlight', function (actual, expect) {
   if (expect === actual)
     return 'class="active"';
@@ -32,7 +36,12 @@ env.addFilter('phoneFmt', function (phoneNumber) {
 });
 
 env.addFilter('dateFmt', function (date) {
-  return dateformat(date, 'dddd mmm dS, h:MM:ss TT');
+  const today = dateformat(Date.now(), 'mmm dS yy');
+  const then = dateformat(date, 'mmm dS yy');
+  var fmt = 'mmm dS, h:MM:ss TT';
+  if (today === then)
+    fmt = 'h:MM:ss TT';
+  return dateformat(date, fmt);
 });
 
 module.exports = env;
