@@ -51,7 +51,20 @@ exports.getByEmail = function findByEmail(options) {
       return next();
     });
   }
-}
+};
+
+exports.getAll = function getAll(options) {
+  const query = { level: "admin" };
+  return function (req, res, next) {
+    Admin.find(query, function (err, admins) {
+      if (err)
+        return next(err);
+      req.admins = admins;
+      return next();
+    });
+  }
+};
+
 
 exports.checkAuth = function checkAuth(options) {
   options = options || {};

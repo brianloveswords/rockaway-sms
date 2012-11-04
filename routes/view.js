@@ -73,5 +73,6 @@ exports.user = function user(req, res) {
 exports.admin = function user(req, res) {
   res.template('admin.html', {
     page: 'admin',
+    admins: req.admins,
   })
 };

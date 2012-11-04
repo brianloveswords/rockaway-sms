@@ -1,8 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h1>Administrate</h1>
-<h2>{{ phone | phoneFmt }}</h2>
+<h1>Administrate {{ phone | phoneFmt }}</h1>
 
 <form method="post" action="/admin/update" class="form-horizontal">
   {{ csrf | csrfElement }}
@@ -11,5 +10,17 @@
     <input type="submit" value="Add administrator" class="btn btn-primary">
   </div>
 </form>
+
+<hr>
+
+{% if admins.length %}
+<h2>Current Admins</h2>
+  <ul>
+    {% for admin in admins %}
+    <li>{{ admin.email }}</li>
+    {% endfor %}
+  </ul>
+</h3>
+{% endif %}
 
 {% endblock %}

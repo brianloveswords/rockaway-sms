@@ -77,7 +77,9 @@ app.get('/', [
   user.getNeedy()
 ], view.index);
 
-app.get('/admin', view.admin);
+app.get('/admin', [
+  admin.getAll()
+], view.admin);
 
 app.post('/admin/update', [
   admin.getByEmail()
