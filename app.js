@@ -2,6 +2,7 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var template = require('./template')
+var middleware = require('./middleware');
 
 var app = express();
 template.express(app);
@@ -12,6 +13,9 @@ app.configure(function(){
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
   app.use(express.methodOverride());
+  app.use(middleware.cookieParser());
+  app.use(middleware.session());
+  app.use(middleware.csrf({ whitelist: ['/v1/*'] }));
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
 });

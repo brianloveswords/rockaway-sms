@@ -1,11 +1,16 @@
 const env = require('../env');
 const PHONE_NUMBER = env.get('twilioFrom');
 
+function getCsrfToken(req) {
+  return req.session._csrf;
+};
+
 exports.index = function index (req, res) {
   res.render('index.html', {
     page: 'home',
     users: req.users,
     phone: PHONE_NUMBER,
+    csrfToken: getCsrfToken(req),
   });
 };
 exports.announce = function announce (req, res) {
@@ -13,6 +18,7 @@ exports.announce = function announce (req, res) {
     page: 'announce',
     subscribers: req.subscribers,
     phone: PHONE_NUMBER,
+    csrfToken: getCsrfToken(req),
   });
 };
 exports.subscribers = function subscribers (req, res) {
@@ -20,6 +26,7 @@ exports.subscribers = function subscribers (req, res) {
     page: 'subscribers',
     subscribers: req.subscribers,
     phone: PHONE_NUMBER,
+    csrfToken: getCsrfToken(req),
   });
 };
 exports.user = function user(req, res) {
@@ -29,5 +36,6 @@ exports.user = function user(req, res) {
     user: user,
     messages: user.messages.reverse(),
     phone: PHONE_NUMBER,
+    csrfToken: getCsrfToken(req),
   });
 };
