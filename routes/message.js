@@ -1,8 +1,8 @@
 var Message = require('../models/message');
-exports.getAll = function getAll (opts) {
-  opts.filter = opts.filter || {};
+exports.getAll = function getAll (filter) {
+  filter = filter || {};
   return function (req, res, next) {
-    Message.find(opts.filter, function (err, messages) {
+    Message.find(filter, function (err, messages) {
       if (err)
         return (err.code = 500, next(err));
       req.messages = messages;

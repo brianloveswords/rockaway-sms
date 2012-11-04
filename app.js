@@ -23,6 +23,8 @@ app.configure('development', function(){
 var api = require('./routes/api');
 var view = require('./routes/view');
 var subscription = require('./routes/subscription');
+var message = require('./routes/message');
+
 // API endpoints
 // -------------
 app.post('/v1/receive', [
@@ -37,7 +39,9 @@ app.get('/v1/subscribers', [
 
 // User facing
 // -----------
-app.get('/', view.index);
+app.get('/', [
+  message.getAll({ type: 'question' })
+], view.index);
 
 app.get('/announce', [
   subscription.getAll()
