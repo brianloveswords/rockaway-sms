@@ -2,13 +2,15 @@ const Twilio = require('../twilio');
 const logger = require('../logger');
 const Subscription = require('../models/subscription');
 
-exports.getAll = function getAll (req, res, next) {
-  Subscription.find(function (err, subscribers) {
-    if (err)
-      return (err.code = 500, next(err));
-    req.subscribers = subscribers;
-    return next();
-  });
+exports.getAll = function getAll (options) {
+  return function (req, res, next) {
+    Subscription.find(function (err, subscribers) {
+      if (err)
+        return (err.code = 500, next(err));
+      req.subscribers = subscribers;
+      return next();
+    });
+  }
 };
 
 exports.announce = function announce(req, res, next) {

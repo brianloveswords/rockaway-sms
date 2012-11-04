@@ -16,6 +16,7 @@ function subscribeMsg(msg, callback) {
   const confirmation = 'You have been added to the alert list. You can stop receiving notifications at any time by texting "stop"';
   const alreadyOn = 'You are already on the list. If you wish to stop getting messages, reply with "stop"';
   logger.info('attemping to subscribe the number ' + sender);
+  msg.type = 'subscribe';
   Subscription.add(sender, function (err, added) {
     if (err) {
       logger.error('there was a problem subscribing' + sender, err);
@@ -33,6 +34,7 @@ function subscribeMsg(msg, callback) {
 function unsubscribeMsg(msg, callback) {
   const sender = msg.from;
   const confirmation = 'You will no longer recieve any alert messages. To resubscibe, reply "subscribe".';
+  msg.type = 'unsubscribe';
   logger.info('attemping to unsubscribe the number ' + sender);
   Subscription.remove(sender, function (err, added) {
     if (err) {
@@ -44,6 +46,7 @@ function unsubscribeMsg(msg, callback) {
 }
 
 function routeNotFound(msg, cb) {
+  msg.type = 'question';
   return cb(null, 'Message received!')
 };
 
@@ -53,18 +56,19 @@ exports.capture = function (req, res) {
   const msg = Message.fromTxtMsg(req.body);
   const sender = msg.from;
   var action, resp;
-  msg.save(function (err, result) {
+  action = messageRouter.find(msg.body);
+  action(msg, function (err, response) {
     if (err) {
-      logger.error('error saving the message', err);
+      logger.error('error running the action', err);
       return (err.code = 500, res.send(500, err));
     }
-    action = messageRouter.find(msg.body);
-    action(msg, function (err, response) {
+    resp = Twilio.SMS.reply({ to: sender, msg: response });
+    msg.save(function (err, result) {
       if (err) {
-        logger.error('error running the action', err);
+        logger.error('error saving the message', err);
         return (err.code = 500, res.send(500, err));
       }
-      resp = Twilio.SMS.reply({ to: sender, msg: response });
+
       logger.info('replying with: ' + resp);
       res.type('xml');
       return res.send(resp);
