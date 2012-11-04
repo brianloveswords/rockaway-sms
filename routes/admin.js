@@ -1,6 +1,7 @@
 const env = require('../env');
 const persona = require('../persona');
 const logger = require('../logger');
+const Admin = require('../models/admin')
 const Exemptions = require('../exemptions');
 const OWNER = env.get('owner');
 
@@ -32,12 +33,29 @@ exports.checkAuth = function checkAuth(options) {
   const whitelist = new Exemptions(options.whitelist);
   const owner = env.get('owner');
   const redirect = options.redirect || '/unauthorized';
+
+  function findByEmail(email, callback) {
+    const query = {
+      email: email,
+      owner: (email === OWNER)
+    }
+    Admin.findOrCreate(query, callback);
+  }
+
   return function (req, res, next) {
-    const admin = req.session.admin;
-    if (!admin || req.url === redirect || whitelist.check(req.url))
+    if (!req.session.admin ||
+        req.url === redirect ||
+        whitelist.check(req.url))
       return next();
-    if (admin === owner)
-      return next();
-    return res.redirect(redirect);
+
+    const email = req.session.admin;
+    const admin = findByEmail(email, function (err, admin) {
+      if (err)
+        return next(err);
+      if (admin.isOwner())
+        return next();
+      console.dir(admin);
+      return res.redirect(redirect);
+    });
   };
 }

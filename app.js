@@ -38,7 +38,7 @@ const admin = require('./routes/admin');
 // Model specific middleware
 // -----------------------------
 app.get('*', admin.checkAuth({
-  whitelist: ['/login', '/v1/recieve']
+  whitelist: ['/login', '/logout', '/v1/recieve']
 }));
 app.get('*', view.template());
 
