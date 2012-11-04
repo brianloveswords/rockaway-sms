@@ -54,10 +54,7 @@ app.post('/v1/user/:id/reply', [
   user.getOne('id')
 ], api.replyToUser);
 
-app.get('/v1/subscribers', [
-  user.getSubscribers()
-], api.listSubscribers);
-
+app.post('/v1/broadcast', api.broadcastMessage);
 
 // User facing
 // -----------
