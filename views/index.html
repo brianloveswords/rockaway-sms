@@ -11,12 +11,11 @@
   </p>
   <div class="well">
     <div class="actions">
-      <form method="get" action="/message/{{ user.lastIncomingMessage().id }}/">
+      <form method="get" action="/user/{{ user.id }}/">
         <button class="btn btn-small btn-primary">Reply</button>
       </form>
       
-      <form method="post" action="/message/{{ message.id }}">
-        <input type="hidden" name="_method" value="delete">
+      <form method="post" action="/user/{{ user.id }}/dismiss-latest">
         <button class="btn btn-small">Dismiss</button>
       </form>
     </div>

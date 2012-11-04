@@ -63,28 +63,30 @@ app.get('/', [
 ], view.index);
 
 app.get('/announce', [
-  subscription.getAll()
+  user.getSubscribers()
 ], view.announce);
 
 app.post('/announce', [
-  subscription.getAll()
-], subscription.announce);
+  user.getSubscribers()
+], user.announce);
 
 app.get('/subscribers', [
-  subscription.getAll()
+  user.getSubscribers()
 ], view.subscribers);
 
-app.delete('/message/:id', [
-  message.getFromParam('id')
-], message.dismiss);
+app.post('/user/:id/dismiss-latest', [
+  user.getOne('id')
+], user.dismissLatest);
 
-app.get('/message/:id', [
-  message.getFromParam('id')
-], view.viewMessage);
 
-app.post('/message/:id/reply', [
-  message.getFromParam('id')
-], message.reply);
+
+// app.get('/message/:id', [
+//   message.getFromParam('id')
+// ], view.viewMessage);
+
+// app.post('/message/:id/reply', [
+//   message.getFromParam('id')
+// ], message.reply);
 
 // Debugging
 // ---------
