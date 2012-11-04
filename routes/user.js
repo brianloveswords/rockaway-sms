@@ -39,7 +39,7 @@ exports.getOne = function getOne(field) {
       if (err)
         return next(err);
       if (!user)
-        return res.send(404);
+        return res.send(404, { 'error': 'Not found' });
       req.user = user;
       return next();
     });
