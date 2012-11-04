@@ -4,56 +4,124 @@ const User = require('../models/user');
 
 db.prepareTest({
   'user1': new User({
-    number: '5551234',
+    number: '1',
     requiresAttention: false,
-    mostRecentMessage: null
   }),
   'user2': new User({
-    number: '123456789',
+    number: '2',
     requiresAttention: false,
-    mostRecentMessage: null
   }),
-
+  'user3': new User({
+    number: '3',
+    requiresAttention: false,
+    messages: [{
+      body: 'hi',
+      type: 'question',
+      direction: 'incoming',
+    }]
+  }),
+  'user4': new User({
+    number: '4',
+    requiresAttention: false,
+  })
 }, function (fixtures) {
   test('User#save', function (t) {
     const user = new User({
       number: '8675309',
     });
     user.save(function (err, result) {
-      console.dir(err);
-      console.dir(result);
+      t.notOk(err, 'should not have errors');
+      t.ok(result, 'should save');
       t.end();
     });
   });
 
-  test('User#incoming', function (t) {
-    var user = fixtures['user1'];
-    var message = {
-      body: 'oh heyyyyy',
-      type: 'question',
-      date: new Date()
-    };
-    var savedMessage = user.incoming(message);
-    t.same(user.messages.length, 1);
-    t.same(user.requiresAttention, true);
-    t.same(user.mostRecentIncoming, message.date);
-    t.same(savedMessage.direction, 'incoming')
-    t.end();
-  });
-
-  test('User#outgoing', function (t) {
+  test('User#sendReply', function (t) {
     var user = fixtures['user2'];
     var message = {
       body: 'oh heyyyyy',
       date: new Date()
     };
-    var savedMessage = user.outgoing(message)
+    var savedMessage = user.sendReply(message)
     t.same(savedMessage.direction, 'outgoing', 'should be outgoing');
     t.same(savedMessage.type, 'answer', 'should be an answer');
     t.same(user.requiresAttention, false, 'should be false');
     t.same(user.mostRecentIncoming, undefined, 'should be undefined');
     t.end();
   });
+
+  test('User#captureIncoming: new user', function (t) {
+    var testMessage = {
+      From: '987654321',
+      Body: 'I am a new user',
+      SmsId: 'some id'
+    }
+    User.captureIncoming(testMessage, function (err, user) {
+      t.notOk(err, 'should not get an error');
+      var message = user.lastMessage();
+      t.same(user.number, testMessage.From);
+      t.same(message.direction, 'incoming');
+      t.same(message.type, 'question');
+      t.end();
+    });
+  });
+
+  test('User#captureIncoming: old user', function (t) {
+    var user = fixtures['user3'];
+    var testMessage = {
+      From: user.number,
+      Body: 'I am an old user',
+      SmsId: 'some id'
+    }
+    t.same(user.requiresAttention, false);
+    User.captureIncoming(testMessage, function (err, user) {
+      t.notOk(err, 'should not get an error');
+      var message = user.lastMessage();
+      t.same(user.messages.length, 2);
+      t.same(user.requiresAttention, true);
+      t.same(message.direction, 'incoming');
+      t.same(message.type, 'question');
+      t.end();
+    });
+  });
+
+  test('User#captureIncoming: old user, subscribe', function (t) {
+    var user = fixtures['user4'];
+    var testMessage = {
+      From: user.number,
+      Body: 'subscribe',
+      SmsId: 'some id'
+    }
+    t.same(user.requiresAttention, false);
+    User.captureIncoming(testMessage, function (err, user) {
+      t.notOk(err, 'should not get an error');
+      var message = user.lastMessage();
+      t.same(user.messages.length, 1);
+      t.same(user.requiresAttention, false);
+      t.same(user.receiveAnnouncements, true);
+      t.same(message.type, 'subscribe');
+      t.end();
+    });
+  });
+
+  test('User#captureIncoming: same old user, unsubscribe', function (t) {
+    var user = fixtures['user4'];
+    var testMessage = {
+      From: user.number,
+      Body: 'stop',
+      SmsId: 'some id'
+    }
+    User.captureIncoming(testMessage, function (err, user) {
+      t.notOk(err, 'should not get an error');
+      var message = user.lastMessage();
+      t.same(user.messages.length, 2);
+      t.same(user.requiresAttention, false);
+      t.same(user.receiveAnnouncements, false);
+      t.same(message.type, 'unsubscribe');
+      t.end();
+    });
+  });
+
 
   test('close', function (t) {
     db.close(), t.end();
