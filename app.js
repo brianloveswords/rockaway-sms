@@ -25,17 +25,19 @@ const view = require('./routes/view');
 const subscription = require('./routes/subscription');
 const message = require('./routes/message');
 const debug = require('./routes/debug');
+const user = require('./routes/user');
 
 // API endpoints
 // -------------
 app.post('/v1/receive', [
-  api.verify
-], api.capture);
+  api.verify,
+  api.capture,
+], api.respond );
 
 app.get('/v1/messages', api.listMessages);
 
 app.get('/v1/subscribers', [
-  subscription.getAll()
+  user.getSubscribers()
 ], api.listSubscribers);
 
 // User facing
@@ -63,6 +65,10 @@ app.delete('/message/:id', [
 app.get('/message/:id', [
   message.getFromParam('id')
 ], view.viewMessage);
+
+app.post('/message/:id/reply', [
+  message.getFromParam('id')
+], message.reply);
 
 // Debugging
 // ---------

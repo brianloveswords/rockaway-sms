@@ -25,7 +25,8 @@ Twilio.SMS.create = function smsCreate(opts) {
 
 Twilio.SMS.reply = function smsReply(opts) {
   var response = Twilio.TwiML.build();
-  response += responseXml(smsXml(Twilio.FromNumber, opts.to, opts.msg)) ;
+  if (opts.msg)
+    response += responseXml(smsXml(Twilio.FromNumber, opts.to, opts.msg)) ;
   return response;
 };
 

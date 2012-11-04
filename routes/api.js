@@ -1,98 +1,49 @@
-var Twilio = require('../twilio');
-var Message = require('../models/message');
-var Subscription = require('../models/subscription');
-var rerouter = require('../rerouter');
-var logger = require('../logger');
-
-// SMS endpoints
-// -------------
-const messageRouter = rerouter([
-  [/^sub(scribe)?/i, subscribeMsg],
-  [/^stop/i, unsubscribeMsg]
-], routeNotFound);
-
-function subscribeMsg(msg, callback) {
-  const sender = msg.from;
-  const confirmation = 'You have been added to the alert list. You can stop receiving notifications at any time by texting "stop"';
-  const alreadyOn = 'You are already on the list. If you wish to stop getting messages, reply with "stop"';
-  logger.info('attemping to subscribe the number ' + sender);
-  msg.type = 'subscribe';
-  Subscription.add(sender, function (err, added) {
-    if (err) {
-      logger.error('there was a problem subscribing' + sender, err);
-      return callback(err);
-    }
-    if (added) {
-      logger.info('successfully subscribed ' + sender);
-      return callback(null, confirmation);
-    }
-    logger.info('already subscribed ' + sender);
-    return callback(null, alreadyOn);
-  });
-}
-
-function unsubscribeMsg(msg, callback) {
-  const sender = msg.from;
-  const confirmation = 'You will no longer recieve any alert messages. To resubscibe, reply "subscribe".';
-  msg.type = 'unsubscribe';
-  logger.info('attemping to unsubscribe the number ' + sender);
-  Subscription.remove(sender, function (err, added) {
-    if (err) {
-      logger.error('there was a problem unsubscribing' + sender, err);
-      return callback(err);
-    }
-    return callback(null, confirmation);
-  });
-}
-
-function routeNotFound(msg, cb) {
-  msg.type = 'question';
-  return cb(null, 'Message received!')
-};
+const Twilio = require('../twilio');
+const User = require('../models/user');
+const rerouter = require('../rerouter');
+const logger = require('../logger');
 
 // HTTP endpoints
 // --------------
-exports.capture = function (req, res) {
-  const msg = Message.fromTxtMsg(req.body);
-  const sender = msg.from;
-  var action, resp;
-  action = messageRouter.find(msg.body);
-  action(msg, function (err, response) {
-    if (err) {
-      logger.error('error running the action', err);
-      return (err.code = 500, res.send(500, err));
-    }
-    resp = Twilio.SMS.reply({ to: sender, msg: response });
-    msg.save(function (err, result) {
-      if (err) {
-        logger.error('error saving the message', err);
-        return (err.code = 500, res.send(500, err));
-      }
-
-      logger.info('replying with: ' + resp);
-      res.type('xml');
-      return res.send(resp);
-    });
+exports.capture = function (req, res, next) {
+  const textMessage = req.body;
+  User.captureIncoming(textMessage, function (err, user) {
+    if (err)
+      return next(err);
+    req.message = textMessage;
+    req.user = user;
+    return next();
   });
 };
 
-exports.listMessages = function listMessages (req, res) {
-  const response = { status: 'ok' };
-  Message.find(function (err, messages) {
-    if (err) // #TODO: log this
-      return (err.code = 500, res.send(500, err));
-    response.messages = messages.map(function (msg) {
-      return {
-        from: msg.from,
-        body: msg.body,
-        smsId: msg.smsId,
-        date: msg.date,
-        responses: msg.responses,
-      };
-    });
-    return res.send(response);
+exports.respond = function respond (req, res, next) {
+  const user = req.user;
+  const message = req.message;
+  const response = user.makeTwiMLResponse(message);
+  user.updateConfirmation(function () {
+    res.type('xml');
+    res.send(response);
   });
 };
+
+
+// exports.listMessages = function listMessages (req, res) {
+//   const response = { status: 'ok' };
+//   Message.find(function (err, messages) {
+//     if (err) // #TODO: log this
+//       return (err.code = 500, res.send(500, err));
+//     response.messages = messages.map(function (msg) {
+//       return {
+//         from: msg.from,
+//         body: msg.body,
+//         smsId: msg.smsId,
+//         date: msg.date,
+//         responses: msg.responses,
+//       };
+//     });
+//     return res.send(response);
+//   });
+// };
 
 exports.listSubscribers = function listSubscribers (req, res) {
   const response = { status: 'ok' };
@@ -107,8 +58,8 @@ exports.listSubscribers = function listSubscribers (req, res) {
 // ----------
 
 exports.verify = function (req, res, next) {
-  if (req.body['AccountSid'] !== Twilio.AccountSid)
-    return res.send(403, 'Invalid account');
+  // if (req.body['AccountSid'] !== Twilio.AccountSid)
+  //   return res.send(403, 'Invalid account');
   return next();
 };
 
