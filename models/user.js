@@ -1,7 +1,8 @@
 const db = require('./');
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const Twilio = require('../twilio');
 const rerouter = require('../rerouter');
+const Schema = mongoose.Schema;
 
 const MessageSchema = new Schema({
   date: {
@@ -50,6 +51,11 @@ const UserSchema = new Schema({
 });
 const User = db.model('User', UserSchema);
 
+User.Messages = {
+  UNSUBSCRIBE: 'You will no longer recieve any alert messages. To resubscibe, reply "subscribe".',
+  SUBSCRIBE: 'You have been added to the alert list. You can stop receiving notifications at any time by texting "stop"',
+  ALREADY_SUBSCRIBED: 'You are already on the list. If you wish to stop getting messages, reply with "stop"',
+};
 
 function defaultMsg(message) {
   const rightNow = Date.now();
@@ -85,20 +91,33 @@ function unsubscribeMsg(message) {
   newMsg.type = 'unsubscribe';
   return update;
 }
+;
 
 const MessageRouter = rerouter([
-  [/^stop/i, unsubscribeMsg],
-  [/^sub(scribe)?/i, subscribeMsg]
-], defaultMsg);
+  [/^stop/i, { fn: unsubscribeMsg, type: 'unsubscribe' }],
+  [/^sub(scribe)?/i, {fn: subscribeMsg, type: 'subscribe' }]
+], {fn: defaultMsg, type: 'question' });
 
 User.captureIncoming = function captureIncoming(message, callback) {
   var route = MessageRouter(message.Body);
-  var update = route(message);
+  var update = route.fn(message);
   User.findOneAndUpdate({
     number: message.From
   }, update, {
     upsert: true
   }, callback);
+};
+
+User.prototype.makeTwiMLResponse = function makeTwiMLResponse(message) {
+  const route = MessageRouter(message.Body);
+  const msgs = {
+    unsubscribe: User.Messages.UNSUBSCRIBE,
+    subscribe: this.receiveAnnouncements
+      ? User.Messages.ALREADY_SUBSCRIBED
+      : User.Messages.SUBSCRIBE,
+  }
+  const msg = msgs[route.type];
+  return Twilio.SMS.reply({ to: message.From, msg: msg });
 };
 
 User.prototype.lastMessage = function lastMessage() {

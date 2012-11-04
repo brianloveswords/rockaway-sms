@@ -139,6 +139,23 @@ db.prepareTest({
     });
   });
 
+  test('User#makeTwiMLResponse: stop message', function (t) {
+    var user = fixtures['user4'];
+    var testMessage = {
+      From: user.number,
+      Body: 'stop',
+      SmsId: 'some id'
+    }
+    Twilio.SMS.once('reply', function (opts) {
+      t.same(opts.to, user.number);
+      t.same(opts.msg, User.Messages.UNSUBSCRIBE);
+      console.dir(opts);
+      t.end();
+    });
+
+    user.makeTwiMLResponse(testMessage);
+  });
+
 
   test('close', function (t) {
     db.close(), t.end();
