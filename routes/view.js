@@ -16,14 +16,9 @@ exports.subscribers = function subscribers (req, res) {
     subscribers: req.subscribers,
   });
 };
-exports.testMessage = function testMessage (req, res) {
-  res.render('test-message.html', {
-    page: 'test-message',
-  });
-};
-exports.viewMessage = function viewMessage (req, res) {
-  res.render('view-message.html', {
-    page: 'view-message',
-    message: req.message,
+exports.user = function user(req, res) {
+  res.render('user.html', {
+    page: 'user',
+    user: req.user
   });
 };

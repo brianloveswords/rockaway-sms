@@ -23,7 +23,6 @@ app.configure('development', function(){
 const api = require('./routes/api');
 const view = require('./routes/view');
 const subscription = require('./routes/subscription');
-const message = require('./routes/message');
 const debug = require('./routes/debug');
 const user = require('./routes/user');
 
@@ -78,19 +77,9 @@ app.post('/user/:id/dismiss-latest', [
   user.getOne('id')
 ], user.dismissLatest);
 
+app.get('/user/:id', [
+  user.getOne('id')
+], view.user);
 
-
-// app.get('/message/:id', [
-//   message.getFromParam('id')
-// ], view.viewMessage);
-
-// app.post('/message/:id/reply', [
-//   message.getFromParam('id')
-// ], message.reply);
-
-// Debugging
-// ---------
-app.get('/debug/message', view.testMessage);
-app.post('/debug/message', debug.saveMessage);
 
 module.exports = http.createServer(app);
