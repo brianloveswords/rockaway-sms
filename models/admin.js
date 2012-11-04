@@ -38,10 +38,6 @@ function rank(level) {
 };
 
 Admin.prototype.hasAccess = function hasAccess(level) {
-  var fmt = '(user) %s = %s, (required ) %s = %s';
-  var util = require('util');
-
-  console.dir(util.format(fmt, this.level, rank(this.level), level, rank(level)));
   return rank(this.level) >= rank(level);
 };
 

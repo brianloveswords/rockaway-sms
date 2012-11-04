@@ -54,7 +54,7 @@ exports.getByEmail = function findByEmail(options) {
 };
 
 exports.getAll = function getAll(options) {
-  const query = { level: "admin" };
+  const query = { };
   return function (req, res, next) {
     Admin.find(query, function (err, admins) {
       if (err)

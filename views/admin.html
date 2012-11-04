@@ -17,10 +17,37 @@
 <h2>Current Admins</h2>
   <ul>
     {% for admin in admins %}
-    <li>{{ admin.email }}</li>
+    
+    {% if admin.id != currentAdmin.id %}
+    <li>
+      {{ admin.email }}
+      <form method="post" action="" class="js-modify-admin-form">
+        {{ csrf | csrfElement }}
+        <input type="hidden" name="email" value="{{ admin.email }}">
+        
+        <input
+           type="submit"
+           value="remove"
+           class="btn btn-link btn-small js-action-button"
+           data-action="/admin/remove">
+        |
+        <input
+           type="submit"
+           value="promote"
+           class="btn btn-link btn-small js-action-button"
+           data-action="/admin/promote">
+      </form>
+    </li>
+    
+    {% endif %}
+    
     {% endfor %}
   </ul>
 </h3>
 {% endif %}
+
+{% block footer %}
+<script src="/js/admin.js"></script>
+{% endblock %}
 
 {% endblock %}
