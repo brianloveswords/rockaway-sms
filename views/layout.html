@@ -18,23 +18,30 @@
           <a class="brand" href="/">RockawayHelpSMS</a>
           <div class="nav-collapse collapse">
             
-            {% if admin %}
+             
+            {% if currentAdmin %}
             <ul class="nav">
-              <li>
-                <a href="/admin">Admin</a>
-              </li>
-              
               <li {{ page | highlight('home') }}>
                 <a href="/">Incoming</a>
               </li>
+              
+              
+              {% if currentAdmin.hasAccess("owner") %}
               <li {{ page | highlight('announce') }}>
                 <a href="/announce">Send an announcement</a>
               </li>
+              
+              <li>
+                <a href="/admin">Admin</a>
+              </li>
+              {% endif %}
+            
+            
             </ul>
             {% endif %}
             
             <ul class="nav pull-right">
-              <li><a href="#">{{ admin }}</a></li>
+              <li><a href="#">{{ currentAdmin.email }}</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>

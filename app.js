@@ -78,10 +78,12 @@ app.get('/', [
 ], view.index);
 
 app.get('/admin', [
+  admin.checkAuth({level: 'owner'}),
   admin.getAll()
 ], view.admin);
 
 app.post('/admin/update', [
+  admin.checkAuth({level: 'owner'}),
   admin.getByEmail()
 ], admin.update);
 
@@ -91,6 +93,7 @@ app.get('/logout', admin.logout);
 app.get('/unauthorized', view.unauthorized);
 
 app.get('/announce', [
+  admin.checkAuth({level: 'owner'}),
   user.getSubscribers()
 ], view.announce);
 

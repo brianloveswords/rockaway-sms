@@ -4,7 +4,7 @@ const ORIGIN = env.get('origin');
 
 function getCsrfToken(req) { return req.session._csrf }
 function getPhoneNumber() { return PHONE_NUMBER }
-function getAdmin(req) { return req.session.admin }
+function getAdmin(req) { return req.currentAdmin }
 function getFlash(req) { return req.flash() }
 function getOrigin(req) { return ORIGIN }
 
@@ -21,7 +21,7 @@ exports.template = function template(options) {
         csrf: getCsrfToken(req),
         flash: getFlash(req),
         phone: getPhoneNumber(req),
-        admin: getAdmin(req),
+        currentAdmin: getAdmin(req),
         origin: getOrigin(),
       };
       each(obj, function (k, v) { templateVars[k] = v });

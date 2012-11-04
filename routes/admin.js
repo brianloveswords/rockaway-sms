@@ -91,9 +91,9 @@ exports.checkAuth = function checkAuth(options) {
     const admin = findByEmail(email, function (err, admin) {
       if (err)
         return next(err);
+      req.currentAdmin = admin;
       if (admin.hasAccess(requiredLevel))
         return next();
-      console.dir(admin);
       return res.redirect(redirect);
     });
   };
