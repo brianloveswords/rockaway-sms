@@ -40,6 +40,18 @@ exports.listUsers = function listUsers (req, res) {
   res.send(response);
 };
 
+exports.listNeedy = function listNeedy(req, res) {
+  const response = { status: 'ok' };
+  response.users = req.users.map(function (user) {
+    return {
+      _id: user.id,
+      number: user.number,
+      lastMessage: user.lastIncomingMessage()
+    }
+  });
+  res.send(response);
+};
+
 exports.userInfo = function userInfo (req, res) {
   const response = { status: 'ok' };
   response.user = req.user;
@@ -62,7 +74,6 @@ exports.replyToUser = function replyToUser (req, res) {
 
 // Middleware
 // ----------
-
 exports.verify = function (req, res, next) {
   // if (req.body['AccountSid'] !== Twilio.AccountSid)
   //   return res.send(403, 'Invalid account');

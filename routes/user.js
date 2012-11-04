@@ -12,6 +12,17 @@ exports.getSubscribers = function getSubscribers (options) {
   }
 };
 
+exports.getNeedy = function getNeedy (options) {
+  return function (req, res, next) {
+    User.findNeedy(function (err, users) {
+      if (err)
+        return next(err);
+      req.users = users;
+      return next();
+    });
+  }
+};
+
 exports.getAll = function getAll (options) {
   options = options || {};
 

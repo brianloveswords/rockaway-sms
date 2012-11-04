@@ -38,6 +38,14 @@ app.get('/v1/users', [
   user.getAll({exclude: ['messages']})
 ],api.listUsers);
 
+app.get('/v1/users/subscribers', [
+  user.getSubscribers()
+], api.listSubscribers);
+
+app.get('/v1/users/needy', [
+  user.getNeedy()
+], api.listNeedy);
+
 app.get('/v1/user/:id', [
   user.getOne('id')
 ], api.userInfo);
