@@ -1,6 +1,23 @@
-var db = require('../models');
+const db = require('../models');
 const test = require('tap').test;
 const User = require('../models/user');
+const Twilio = require('../twilio');
+
+
+// let's hijack some twilio methods!
+const EventEmitter = require('events').EventEmitter;
+function emit(name) {
+  return function () {
+    var args = [].slice.call(arguments);
+    args.unshift(name);
+    this.emit.apply(this, args);
+    this.removeAllListeners(name);
+  }
+}
+Twilio.SMS.__proto__ = EventEmitter.prototype;
+Twilio.SMS.create = emit('create');
+Twilio.SMS.reply = emit('reply');
+Twilio.SMS.announce = emit('announce');
 
 db.prepareTest({
   'user1': new User({
