@@ -1,7 +1,7 @@
 exports.index = function index (req, res) {
   res.render('index.html', {
     page: 'home',
-    messages: req.messages,
+    users: req.users,
   });
 };
 exports.announce = function announce (req, res) {

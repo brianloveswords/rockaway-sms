@@ -5,6 +5,10 @@ const dateformat = require('dateformat');
 
 function identity(x) { return x };
 
+env.addFilter('entities', function (string) {
+  return string.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+});
+
 env.addFilter('highlight', function (actual, expect) {
   if (expect === actual)
     return 'class="active"';

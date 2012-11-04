@@ -59,7 +59,7 @@ app.post('/v1/broadcast', api.broadcastMessage);
 // User facing
 // -----------
 app.get('/', [
-  message.getAll({ type: 'question' })
+  user.getNeedy()
 ], view.index);
 
 app.get('/announce', [
