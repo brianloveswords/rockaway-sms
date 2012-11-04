@@ -63,6 +63,7 @@ db.prepareTest({
       body: 'oh heyyyyy',
       date: new Date()
     };
+    user.requiresAttention = true;
 
     Twilio.SMS.once('create', function (opts) {
       t.same(opts.to, user.number);

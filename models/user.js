@@ -188,9 +188,19 @@ User.prototype.lastMessage = function lastMessage() {
   return this.messages[this.messages.length-1]
 };
 
+User.prototype.lastIncomingMessage = function lastIncomingMessage() {
+  var idx = this.messages.length;
+  while (idx--) {
+    if (this.messages[idx].type === 'question')
+      return this.messages[idx];
+  }
+  return {};
+};
+
 /**
  * Send a reply to a user. On a succesful save, hits Twilio
- * to actually send the message.
+ * to actually send the message. If the user required attention,
+ * unset that flag on success.
  *
  * @param {Message} msgObj
  * @param {Function} callback
@@ -201,13 +211,16 @@ User.prototype.sendReply = function outgoing(msgObj, callback) {
 
   msgObj.type = 'answer';
   msgObj.direction = 'outgoing';
+  this.requiresAttention = false;
   this.addMessage(msgObj, function (err) {
     if (err)
       return callback(err);
+
     Twilio.SMS.create({
       to: this.number,
       body: msgObj.body
     });
+
     return callback();
   }.bind(this));
   return this.lastMessage();
@@ -266,6 +279,15 @@ User.broadcast = function broadcast(message, callback) {
 User.findSubscribers = function findSubscribers(callback) {
   const query = { receiveAnnouncements: true };
   User.find(query, callback);
-}
+};
+
+/**
+ * Get everyone who needs action
+ */
+
+User.findNeedy = function findNeedy(callback) {
+  const query = { requiresAttention: true };
+  User.find(query, callback);
+};
 
 module.exports = User;
