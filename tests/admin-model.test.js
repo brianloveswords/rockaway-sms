@@ -32,6 +32,31 @@ db.prepareTest(function () {
     t.end();
   });
 
+  test('Admin#hasAccess', function (t) {
+    var admin = new Admin({ email: 'y', level: 'owner' });
+    t.same(admin.hasAccess('schlub'), true);
+    t.same(admin.hasAccess('admin'), true);
+    t.same(admin.hasAccess('owner'), true);
+
+    admin.level = 'admin';
+    t.same(admin.hasAccess('schlub'), true);
+    t.same(admin.hasAccess('admin'), true);
+    t.same(admin.hasAccess('owner'), false);
+
+    admin.level = 'schlub';
+    t.same(admin.hasAccess('wibble wobble'), true);
+    t.same(admin.hasAccess('schlub'), true);
+    t.same(admin.hasAccess('admin'), false);
+    t.same(admin.hasAccess('owner'), false);
+
+    admin.level = 'notthing at all';
+    t.same(admin.hasAccess('schlub'), false);
+    t.same(admin.hasAccess('admin'), false);
+    t.same(admin.hasAccess('owner'), false);
+    t.end();
+  });
+
+
   test('done', function (t) {
     db.close(), t.end();
   });

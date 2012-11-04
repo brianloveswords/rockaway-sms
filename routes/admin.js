@@ -68,6 +68,7 @@ exports.getAll = function getAll(options) {
 
 exports.checkAuth = function checkAuth(options) {
   options = options || {};
+  const requiredLevel = options.level || 'admin';
   const whitelist = new Exemptions(options.whitelist);
   const owner = env.get('owner');
   const redirect = options.redirect || '/unauthorized';
@@ -90,7 +91,7 @@ exports.checkAuth = function checkAuth(options) {
     const admin = findByEmail(email, function (err, admin) {
       if (err)
         return next(err);
-      if (admin.isOwner())
+      if (admin.hasAccess(requiredLevel))
         return next();
       console.dir(admin);
       return res.redirect(redirect);

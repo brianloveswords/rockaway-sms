@@ -17,6 +17,7 @@ const AdminSchema = new Schema({
 });
 
 const Admin = db.model('Admin', AdminSchema);
+Admin.LEVELS = ['schlub', 'admin', 'owner'];
 
 Admin.findOrCreate = function findOrCreate(obj, callback) {
   const query = { email: obj.email };
@@ -28,12 +29,25 @@ Admin.findOrCreate = function findOrCreate(obj, callback) {
 };
 
 Admin.prototype.isOwner = function isOwner() {
-  return this.level === "owner";
+  return this.level === 'owner';
+};
+
+
+function rank(level) {
+  return Admin.LEVELS.indexOf(level);
+};
+
+Admin.prototype.hasAccess = function hasAccess(level) {
+  var fmt = '(user) %s = %s, (required ) %s = %s';
+  var util = require('util');
+
+  console.dir(util.format(fmt, this.level, rank(this.level), level, rank(level)));
+  return rank(this.level) >= rank(level);
 };
 
 Admin.prototype.changeLevel = function changeLevel(level, callback) {
   this.level = level;
   this.save(callback);
-}
+};
 
 module.exports = Admin;
