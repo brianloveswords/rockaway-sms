@@ -22,6 +22,30 @@ exports.session = function () {
   });
 };
 
+exports.flash = function () {
+  function store(type, msg) {
+    if (arguments.length === 1)
+      msg = type, type = 'info';
+    msg = { type: type, body: msg };
+    return this.session._flash = msg;
+  }
+  function retrieve() {
+    const msg = this.session._flash;
+    delete this.session._flash;
+    return msg;
+  }
+  function dispatch() {
+    const args = [].slice.call(arguments);
+    if (!args.length)
+      return retrieve.call(this);
+    return store.apply(this, args);
+  }
+  return function (req, res, next) {
+    req.flash = dispatch;
+    return next();
+  };
+}
+
 /** Adapted from connect/lib/middleware/csrf.js */
 exports.csrf = function csrf(options) {
   options = options || {}
