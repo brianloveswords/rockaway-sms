@@ -77,6 +77,12 @@ app.get('/', [
   user.getNeedy()
 ], view.index);
 
+app.get('/admin', view.admin);
+
+app.post('/admin/update', [
+  admin.getByEmail()
+], admin.update);
+
 app.get('/login', view.login);
 app.post('/login', admin.login);
 app.get('/logout', admin.logout);
@@ -109,5 +115,6 @@ app.get('/users', [
 app.post('/user/:id/reply', [
   user.getById('id')
 ], user.reply);
+
 
 module.exports = http.createServer(app);

@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h1>Administrate</h1>
+<h2>{{ phone | phoneFmt }}</h2>
+
+<form method="post" action="/admin/update" class="form-horizontal">
+  {{ csrf | csrfElement }}
+  <div>
+    <input name="email" type="email" class="input-large" placeholder="user@example.org">
+    <input type="submit" value="Add administrator" class="btn btn-primary">
+  </div>
+</form>
+
+{% endblock %}

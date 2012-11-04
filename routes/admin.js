@@ -25,8 +25,33 @@ exports.logout = function logout(req, res) {
   res.redirect('/login');
 };
 
+exports.update = function update(req, res) {
+  const user = req.user;
+  user.changeLevel('admin', function (err) {
+    if (err) {
+      logger.error('error when updating user: ', err.message, err);
+      res.send(500, err);
+    }
+    req.flash('success', 'User <em>'+ user.email +'</em> added.')
+    return res.redirect('back');
+  })
+};
+
 // Middleware
 // ----------
+exports.getByEmail = function findByEmail(options) {
+  return function (req, res, next) {
+    const query = { email: req.body.email };
+    Admin.findOrCreate(query, function (err, admin) {
+      if (err)
+        return next(err);
+      if (!admin)
+        return res.send(404);
+      req.user = admin;
+      return next();
+    });
+  }
+}
 
 exports.checkAuth = function checkAuth(options) {
   options = options || {};

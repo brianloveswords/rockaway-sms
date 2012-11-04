@@ -70,3 +70,8 @@ exports.user = function user(req, res) {
     messages: user.messages.reverse(),
   });
 };
+exports.admin = function user(req, res) {
+  res.template('admin.html', {
+    page: 'admin',
+  })
+};

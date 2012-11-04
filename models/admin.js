@@ -31,4 +31,9 @@ Admin.prototype.isOwner = function isOwner() {
   return this.level === "owner";
 };
 
+Admin.prototype.changeLevel = function changeLevel(level, callback) {
+  this.level = level;
+  this.save(callback);
+}
+
 module.exports = Admin;
