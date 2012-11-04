@@ -61,7 +61,7 @@ User.Messages = {
   ALREADY_SUBSCRIBED: 'You are already on the list. If you wish to stop getting messages, reply with "stop"',
 };
 
-function defaultMsg(message) {
+function defaultMsg(rawMsgObj) {
   const rightNow = Date.now();
   return {
     mostRecentIncoming: rightNow,
@@ -69,8 +69,8 @@ function defaultMsg(message) {
     '$push' : {
       messages: {
         date: rightNow,
-        body: message.Body,
-        smsId: message.SmsId,
+        body: rawMsgObj.Body,
+        smsId: rawMsgObj.SmsId,
         direction: 'incoming',
         type: 'question'
       }
@@ -78,8 +78,8 @@ function defaultMsg(message) {
   };
 }
 
-function subscribeMsg(message) {
-  var update = defaultMsg(message);
+function subscribeMsg(rawMsgObj) {
+  var update = defaultMsg(rawMsgObj);
   var newMsg = update['$push'].messages;
   delete update.requiresAttention;
   update.receiveAnnouncements = true;
@@ -87,8 +87,8 @@ function subscribeMsg(message) {
   return update;
 }
 
-function unsubscribeMsg(message) {
-  var update = defaultMsg(message);
+function unsubscribeMsg(rawMsgObj) {
+  var update = defaultMsg(rawMsgObj);
   var newMsg = update['$push'].messages;
   delete update.requiresAttention;
   update.receiveAnnouncements = false;
@@ -101,29 +101,70 @@ const MessageRouter = rerouter([
   [/^sub(scribe)?/i, {fn: subscribeMsg, type: 'subscribe' }]
 ], {fn: defaultMsg, type: 'question' });
 
-User.captureIncoming = function captureIncoming(message, callback) {
-  var route = MessageRouter(message.Body);
-  var update = route.fn(message);
+
+/**
+ * Capture an incoming message and create or update a user.
+ *
+ * @param {Object} rawMsgObj Raw text message coming from Twilio
+ * @param {Function} callback
+ * @see `MessageRouter`
+ */
+
+User.captureIncoming = function captureIncoming(rawMsgObj, callback) {
+  const sender = rawMsgObj.From;
+  const message = rawMsgObj.Body;
+  const route = MessageRouter(message);
+  const update = route.fn(rawMsgObj);
   User.findOneAndUpdate({
-    number: message.From
+    number: rawMsgObj.From
   }, update, {
     upsert: true
   }, callback);
 };
+
+/**
+ * See if the user needs to have another confirmation sent
+ *
+ * @return {Boolean}
+ */
 
 User.prototype.needsConfirmation = function needsConfirmation() {
   var oneDay = 24 * 60 * 60 * 1000;
   return (this.lastConfirmation || 0) <= (Date.now() - oneDay);
 };
 
+/**
+ * Update `lastConfirmation` if:
+ *   - There has been at least message received
+ *   - The last message is a `question` type
+ *   - The last confirmation was at least a day ago
+ *
+ * @param {Function} callback
+ * @see `User#needsConfirmation`
+ * @see `User#lastMessage`
+ */
+
 User.prototype.updateConfirmation = function updateConfirmation(callback) {
   callback = callback || function(){};
-  this.lastConfirmation = Date.now();
-  this.save(callback);
+  const lastMsg = this.lastMessage();
+  if (lastMsg && lastMsg.type == 'question' && this.needsConfirmation()) {
+    this.lastConfirmation = Date.now();
+    return this.save(callback);
+  }
+  return callback();
 };
 
-User.prototype.makeTwiMLResponse = function makeTwiMLResponse(message) {
-  const route = MessageRouter(message.Body);
+/**
+ * Make a TwiML response for the given incoming message. Returns just
+ * the XML prolog if there's no response to make.
+ *
+ * @param {Object} rawMsgObj Incoming message, raw.
+ * @return {String} TwiML to respond with
+ */
+
+User.prototype.makeTwiMLResponse = function makeTwiMLResponse(rawMsgObj) {
+  const message = rawMsgObj.Body;
+  const route = MessageRouter(message);
   const msgs = {
     question: (this.needsConfirmation()
       ? User.Messages.MESSAGE_CONFIRMATION
@@ -134,18 +175,60 @@ User.prototype.makeTwiMLResponse = function makeTwiMLResponse(message) {
       : User.Messages.SUBSCRIBE),
   }
   const msg = msgs[route.type];
-  return Twilio.SMS.reply({ to: message.From, msg: msg });
+  return Twilio.SMS.reply({ to: this.number, msg: msg });
 };
+
+/**
+ * Get the last message for the user
+ *
+ * @return {Message} message
+ */
 
 User.prototype.lastMessage = function lastMessage() {
   return this.messages[this.messages.length-1]
 };
 
-User.prototype.sendReply = function outgoing(message) {
-  message.type = 'answer';
-  message.direction = 'outgoing';
-  this.messages.push(message);
+/**
+ * Send a reply to a user. On a succesful save, hits Twilio
+ * to actually send the message.
+ *
+ * @param {Message} msgObj
+ * @param {Function} callback
+ */
+
+User.prototype.sendReply = function outgoing(msgObj, callback) {
+  callback = callback || function(){};
+
+  msgObj.type = 'answer';
+  msgObj.direction = 'outgoing';
+  this.messages.push(msgObj);
+  this.save(function (err) {
+    if (err)
+      return callback(err);
+    Twilio.SMS.create({
+      to: this.number,
+      body: msgObj.body
+    });
+    return callback();
+  }.bind(this));
   return this.lastMessage();
+};
+
+/**
+ * Send a broadcast out to all users who subscribe to the announcelist
+ *
+ * @param {String} message
+ * @param {Function} callback
+ */
+
+User.broadcast = function broadcast(message, callback) {
+  callback || function(){};
+
+  User.find({ receiveAnnouncements: true }, function (err, users) {
+    if (err)
+      return callback(err);
+    return callback(null, users);
+  });
 };
 
 
