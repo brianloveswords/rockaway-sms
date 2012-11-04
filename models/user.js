@@ -86,13 +86,13 @@ function unsubscribeMsg(message) {
   return update;
 }
 
-const messageRouter = rerouter([
+const MessageRouter = rerouter([
   [/^stop/i, unsubscribeMsg],
   [/^sub(scribe)?/i, subscribeMsg]
 ], defaultMsg);
 
 User.captureIncoming = function captureIncoming(message, callback) {
-  var route = messageRouter(message.Body);
+  var route = MessageRouter(message.Body);
   var update = route(message);
   User.findOneAndUpdate({
     number: message.From
@@ -111,4 +111,6 @@ User.prototype.sendReply = function outgoing(message) {
   this.messages.push(message);
   return this.lastMessage();
 };
+
+
 module.exports = User;
