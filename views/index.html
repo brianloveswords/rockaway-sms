@@ -2,13 +2,35 @@
 {% block "body" %}
 
 <h1>Incoming Messages</h1>
-<ul>
+<p>
+  Here are some tips on how to use this thing:
+</p>
+
+<ol>
+  <li>
+    If you are working with someone else, communicate! I haven't
+    implemented live-updating on the page when someone does something, and
+    you don't want to text-spam people.
+  </li>
+  <li>
+    As I alluded to above, the page doesn't live-update yet, so refresh the
+    page periodically to see new content.
+  </li>
+</ol>
+<hr>
+
+{% if users.length == 0 %}
+<h2>Nothing yet!</h2>
+{% endif %}
+
+<ul class="main-message-list">
 {% for user in users %}
 <li class="message">
-  <p>
-    From <code>{{ user.number | phoneFmt }}</code>
-    on <strong>{{ user.lastIncomingMessage().date | dateFmt }}</strong>
-  </p>
+  <h2>
+    From <a href="/user/{{ user.id }}/" class="user">{{ user.number | phoneFmt }}</a>
+    on <span class="date">{{ user.lastIncomingMessage().date | dateFmt }}</span>
+  </h2>
+  
   <div class="well">
     <div class="actions">
       <form method="get" action="/user/{{ user.id }}/">

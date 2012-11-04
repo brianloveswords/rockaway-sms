@@ -45,11 +45,11 @@ app.get('/v1/users/needy', [
 ], api.listNeedy);
 
 app.get('/v1/user/:id', [
-  user.getOne('id')
+  user.getById('id')
 ], api.userInfo);
 
 app.post('/v1/user/:id/reply', [
-  user.getOne('id')
+  user.getById('id')
 ], api.replyToUser);
 
 app.post('/v1/broadcast', api.broadcastMessage);
@@ -73,15 +73,19 @@ app.get('/subscribers', [
 ], view.subscribers);
 
 app.post('/user/:id/dismiss-latest', [
-  user.getOne('id')
+  user.getById('id')
 ], user.dismissLatest);
 
 app.get('/user/:id', [
-  user.getOne('id')
+  user.getById('id')
+], view.user);
+
+app.get('/users', [
+  user.getByPhone('phone')
 ], view.user);
 
 app.post('/user/:id/reply', [
-  user.getOne('id')
+  user.getById('id')
 ], user.reply);
 
 module.exports = http.createServer(app);

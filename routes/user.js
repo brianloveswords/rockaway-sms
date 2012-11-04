@@ -82,16 +82,31 @@ exports.getAll = function getAll (options) {
   }
 };
 
-exports.getOne = function getOne(field) {
+exports.getById = function getById(field) {
   return function (req, res, next) {
+    const callback = foundUser(req, res, next);
     const id = req.param(field);
-    User.findById(id, function (err, user) {
-      if (err)
-        return next(err);
-      if (!user)
-        return res.send(404, { 'error': 'Not found' });
-      req.user = user;
-      return next();
-    });
+    User.findById(id, callback);
+  };
+}
+
+exports.getByPhone = function getById(field) {
+  return function (req, res, next) {
+    const callback = foundUser(req, res, next);
+    const number = req.query[field];
+    const query = { number: '+' + number };
+    User.findOne(query, callback);
   };
 };
+
+function foundUser(req, res, next) {
+  return function (err, user) {
+    if (err)
+      return next(err);
+    if (!user)
+      return res.send(404, { 'error': 'Not found' });
+    req.user = user;
+    return next();
+  }
+}
+
