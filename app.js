@@ -1,11 +1,10 @@
 var express = require('express');
 var http = require('http');
 var path = require('path');
-var app = express();
+var template = require('./template')
 
-var nunjucks = require('nunjucks');
-var env = new nunjucks.Environment(new nunjucks.FileSystemLoader('views'));
-env.express(app);
+var app = express();
+template.express(app);
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -31,14 +30,25 @@ app.post('/v1/receive', [
 ], api.capture);
 
 app.get('/v1/messages', api.listMessages);
-app.get('/v1/subscribers', [subscription.getAll], api.listSubscribers);
 
+app.get('/v1/subscribers', [
+  subscription.getAll()
+], api.listSubscribers);
 
 // User facing
 // -----------
 app.get('/', view.index);
-app.get('/announce', view.announce);
-app.post('/announce', [subscription.getAll], subscription.announce);
-app.get('/subscribers', [subscription.getAll], view.subscribers);
+
+app.get('/announce', [
+  subscription.getAll()
+], view.announce);
+
+app.post('/announce', [
+  subscription.getAll()
+], subscription.announce);
+
+app.get('/subscribers', [
+  subscription.getAll()
+], view.subscribers);
 
 module.exports = http.createServer(app);
