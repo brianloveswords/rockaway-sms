@@ -2,6 +2,7 @@
 {% block body %}
   <h1>
     <form method="post" action="reply" class="reply-form form-horizontal">
+      {{ csrf | csrfElement }}
       <input type="text"
              name="message"
              maxlength="160"

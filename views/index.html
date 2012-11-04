@@ -38,6 +38,7 @@
       </form>
       
       <form method="post" action="/user/{{ user.id }}/dismiss-latest">
+        {{ csrf | csrfElement }}
         <button class="btn btn-small">Dismiss</button>
       </form>
     </div>

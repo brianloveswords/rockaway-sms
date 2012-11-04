@@ -3,6 +3,7 @@
 
 <h1>Send an Announcement</h1>
 <form method="post" action="?" class="announcement">
+  {{ csrf | csrfElement }}
   <div>
     <textarea id="message" name="message" maxlength="160" data-countdown='yes'></textarea>
   </div>

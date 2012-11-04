@@ -35,6 +35,11 @@ env.addFilter('phoneFmt', function (phoneNumber) {
   );
 });
 
+env.addFilter('csrfElement', function (token) {
+  var element = '<input type="hidden" name="_csrf" value="%s">';
+  return util.format(element, token);
+});
+
 env.addFilter('dateFmt', function (date) {
   const today = dateformat(Date.now(), 'mmm dS yy');
   const then = dateformat(date, 'mmm dS yy');
