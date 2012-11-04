@@ -113,7 +113,7 @@ User.captureIncoming = function captureIncoming(message, callback) {
 
 User.prototype.needsConfirmation = function needsConfirmation() {
   var oneDay = 24 * 60 * 60 * 1000;
-  return this.lastConfirmation <= (Date.now() - oneDay);
+  return (this.lastConfirmation || 0) <= (Date.now() - oneDay);
 };
 
 User.prototype.updateConfirmation = function updateConfirmation(callback) {

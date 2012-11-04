@@ -193,6 +193,10 @@ db.prepareTest({
 
     user.lastConfirmation = Date.now() - 86400000;
     t.same(user.needsConfirmation(), true);
+
+    user.lastConfirmation = undefined;
+    t.same(user.needsConfirmation(), true);
+
     t.end();
   });
 
