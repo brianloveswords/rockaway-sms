@@ -44,6 +44,9 @@ const UserSchema = new Schema({
   mostRecentIncoming: {
     type: Date,
   },
+  lastConfirmation: {
+    type: Date,
+  },
   receiveAnnouncements: {
     type: Boolean,
     default: false,
@@ -52,6 +55,7 @@ const UserSchema = new Schema({
 const User = db.model('User', UserSchema);
 
 User.Messages = {
+  MESSAGE_CONFIRMATION: 'Message received! Note, you will only receive this message at most once per day.',
   UNSUBSCRIBE: 'You will no longer receive any alert messages. To resubscibe, reply "subscribe".',
   SUBSCRIBE: 'You have been added to the alert list. You can stop receiving notifications at any time by texting "stop"',
   ALREADY_SUBSCRIBED: 'You are already on the list. If you wish to stop getting messages, reply with "stop"',
@@ -91,7 +95,6 @@ function unsubscribeMsg(message) {
   newMsg.type = 'unsubscribe';
   return update;
 }
-;
 
 const MessageRouter = rerouter([
   [/^stop/i, { fn: unsubscribeMsg, type: 'unsubscribe' }],
@@ -108,13 +111,27 @@ User.captureIncoming = function captureIncoming(message, callback) {
   }, callback);
 };
 
+User.prototype.needsConfirmation = function needsConfirmation() {
+  var oneDay = 24 * 60 * 60 * 1000;
+  return this.lastConfirmation <= (Date.now() - oneDay);
+};
+
+User.prototype.updateConfirmation = function updateConfirmation(callback) {
+  callback = callback || function(){};
+  this.lastConfirmation = Date.now();
+  this.save(callback);
+};
+
 User.prototype.makeTwiMLResponse = function makeTwiMLResponse(message) {
   const route = MessageRouter(message.Body);
   const msgs = {
+    question: (this.needsConfirmation()
+      ? User.Messages.MESSAGE_CONFIRMATION
+      : null),
     unsubscribe: User.Messages.UNSUBSCRIBE,
-    subscribe: this.receiveAnnouncements
+    subscribe: (this.receiveAnnouncements
       ? User.Messages.ALREADY_SUBSCRIBED
-      : User.Messages.SUBSCRIBE,
+      : User.Messages.SUBSCRIBE),
   }
   const msg = msgs[route.type];
   return Twilio.SMS.reply({ to: message.From, msg: msg });

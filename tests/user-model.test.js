@@ -174,6 +174,40 @@ db.prepareTest({
     user.makeTwiMLResponse(testMessage);
   });
 
+  test('User#makeTwiMLResponse: generic message', function (t) {
+    var oneDay = 24 * 60 * 60 * 1000;
+    var user = fixtures['user4'];
+    var testMessage = {From: user.number, Body: 'oh hey', SmsId: 'some id' };
+    user.lastConfirmation = Date.now() - 86400000;
+    Twilio.SMS.once('reply', function (opts) {
+      t.same(opts.to, user.number);
+      t.same(opts.msg, User.Messages.MESSAGE_CONFIRMATION);
+      t.end();
+    });
+    user.makeTwiMLResponse(testMessage);
+  });
+
+  test('User#needsConfirmation', function (t) {
+    var user = new User({ lastConfirmation: Date.now() });
+    t.same(user.needsConfirmation(), false);
+
+    user.lastConfirmation = Date.now() - 86400000;
+    t.same(user.needsConfirmation(), true);
+    t.end();
+  });
+
+  test('User#makeTwiMLResponse: generic message, too recent', function (t) {
+    var user = fixtures['user4'];
+    var testMessage = {From: user.number, Body: 'oh hey', SmsId: 'some id' };
+    user.lastConfirmation = Date.now();
+    Twilio.SMS.once('reply', function (opts) {
+      t.same(opts.to, user.number);
+      t.same(opts.msg, null);
+      t.end();
+    });
+    user.makeTwiMLResponse(testMessage);
+  });
+
   test('close', function (t) {
     db.close(), t.end();
   });
