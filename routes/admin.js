@@ -26,6 +26,7 @@ exports.logout = function logout(req, res) {
 
 // Middleware
 // ----------
+
 exports.checkAuth = function checkAuth(options) {
   options = options || {};
   const whitelist = new Exemptions(options.whitelist);
