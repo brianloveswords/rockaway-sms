@@ -14,6 +14,20 @@ body { padding-top: 60px; }
   color: #444;
 }
 
+.alert-error::before {
+  content: "Oh no!";
+  font-weight: bold;
+}
+.alert-info::before {
+  content: "Heads up!";
+  font-weight: bold;
+}
+.alert-success::before {
+  content: "Nice!";
+  font-weight: bold;
+}
+
+
 form.announcement textarea,
 form.reply textarea {
   font-size: 18px;
