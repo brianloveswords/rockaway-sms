@@ -5,22 +5,25 @@
 <ul>
 {% for message in messages %}
 <li class="message">
-    <p>
-      From <code>{{ message.from | phoneFmt }}</code> on <strong>{{ message.date | dateFmt }}</strong>
-    </p>
-    <div class="well">
-      <div class="actions">
-        <button class="js-reply btn btn-small btn-primary">Reply</button>
-        
-        <form method="post" action="/message/{{ message.id }}">
-          <input type="hidden" name="_method" value="delete">
-          <button class="js-dismiss btn btn-small">Dismiss</button>
-        </form>
+  <p>
+    From <code>{{ message.from | phoneFmt }}</code> on <strong>{{ message.date | dateFmt }}</strong>
+  </p>
+  <div class="well">
+    <div class="actions">
+      <form method="get" action="/message/{{ message.id }}/">
+        <button class="btn btn-small btn-primary">Reply</button>
+      </form>
       
-      </div>
-      {{ message.body }}
-      <br style='clear: both;'>
+      <form method="post" action="/message/{{ message.id }}">
+        <input type="hidden" name="_method" value="delete">
+        <button class="btn btn-small">Dismiss</button>
+      </form>
     </div>
+    
+    {{ message.body }}
+    
+    <br style="clear: both;">
+  </div>
 </li>
 {% endfor %}
 

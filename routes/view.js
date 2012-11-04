@@ -21,3 +21,9 @@ exports.testMessage = function testMessage (req, res) {
     page: 'test-message',
   });
 };
+exports.viewMessage = function viewMessage (req, res) {
+  res.render('view-message.html', {
+    page: 'view-message',
+    message: req.message,
+  });
+};

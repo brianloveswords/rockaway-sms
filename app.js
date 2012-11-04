@@ -60,6 +60,10 @@ app.delete('/message/:id', [
   message.getFromParam('id')
 ], message.dismiss);
 
+app.get('/message/:id', [
+  message.getFromParam('id')
+], view.viewMessage);
+
 // Debugging
 // ---------
 app.get('/debug/message', view.testMessage);

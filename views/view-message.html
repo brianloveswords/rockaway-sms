@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block "body" %}
+
+<h1>From {{ message.from | phoneFmt }}:</h1>
+<hr>
+<h2>“{{ message.body }}”</h2>
+
+<form method="post" action="reply" class="reply">
+  <label for="reply">Reply With:<label>
+  <textarea
+     id="reply"
+     name="reply"
+     maxlength="160"
+     placeholder="[insert encouragement here] -- Brian"
+     required></textarea>
+  <span class="help-block">
+    It's probably a good idea to end the message with your name so it
+    seems like it's coming from a human
+  </span>
+  <div class="form-actions">
+    <input type="submit" class="btn btn-primary" value="Reply">
+  </div>
+</form>
+
+{% endblock %}

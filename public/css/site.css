@@ -1,6 +1,7 @@
 body { padding-top: 60px; }
 
-form.announcement textarea {
+form.announcement textarea,
+form.reply textarea {
   font-size: 18px;
   line-height: 24px;
   width: 400px;
@@ -18,6 +19,6 @@ form.announcement textarea {
   width: 60px;
 }
 
-.message form {
+.message .actions form {
   display: inline;
 }
