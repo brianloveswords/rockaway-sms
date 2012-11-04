@@ -237,7 +237,6 @@ User.broadcast = function broadcast(message, callback) {
   callback || function(){};
 
   var numbers;
-  const query = { receiveAnnouncements: true };
   const msgObj = {
     body: message,
     type: 'announcement',
@@ -248,7 +247,7 @@ User.broadcast = function broadcast(message, callback) {
     return i.addMessage(msgObj, callback);
   }
 
-  User.find(query, function (err, users) {
+  User.findSubscribers(function (err, users) {
     if (err)
       return callback(err);
     numbers = users.map(function (inst) { return inst.number });
@@ -258,5 +257,15 @@ User.broadcast = function broadcast(message, callback) {
 };
 
 
+/**
+ * Get everyone who subscribes to the announcements
+ *
+ * @param {Function} callback
+ */
+
+User.findSubscribers = function findSubscribers(callback) {
+  const query = { receiveAnnouncements: true };
+  User.find(query, callback);
+}
 
 module.exports = User;
