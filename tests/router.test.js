@@ -14,7 +14,7 @@ const paths = [
 ];
 
 test('finding', function (t) {
-  var fn = rerouter(paths).find('hey party people');
+  var fn = rerouter(paths)('hey party people');
   t.same(fn(), ['party', 'people']);
   t.end();
 });
@@ -31,3 +31,15 @@ test('fallthrough', function (t) {
   t.same(router.route('nope nothing'), 'fallthrough');
   t.end();
 });
+
+test('simple router', function (t) {
+  const router = rerouter([
+    [/^lol$/, 'wut'],
+    [/^wut$/, 'lol'],
+  ], 'got nothin');
+  t.same(router('lol'), 'wut');
+  t.same(router('wut'), 'lol');
+  t.same(router('yeah so'), 'got nothin');
+  t.end();
+});
+

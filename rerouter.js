@@ -8,6 +8,8 @@ module.exports = function rerouter(paths, fallthrough) {
       regexp = entry[0];
       fun = entry[1];
       if ((match = path.match(regexp))) {
+        if (typeof fun !== 'function')
+          return fun;
         return fun.bind({
           input: path,
           original: fun,
@@ -15,11 +17,14 @@ module.exports = function rerouter(paths, fallthrough) {
         });
       }
     }
-    if (fallthrough)
+    if (fallthrough) {
+      if (typeof fallthrough !== 'function')
+        return fallthrough;
       return fallthrough.bind({
         input: path,
         original: fallthrough
       });
+    }
     return null;
   }
 
@@ -32,8 +37,6 @@ module.exports = function rerouter(paths, fallthrough) {
     return fun();
   }
 
-  return {
-    route: route,
-    find: find
-  }
+  find.route = route;
+  return find;
 };
