@@ -3,9 +3,12 @@
 <h1>Send an Announcement</h1>
 <form method="post" action="?" class="announcement">
   <div>
-    <label for="message">Message to send:</label>
     <textarea id="message" name="message" maxlength="160" data-countdown='yes'></textarea>
   </div>
+  <p>
+    Note: It will take about {{ subscribers.length }} seconds
+    for the message to propagate through all the subscribers.
+  </p>
   <div class="form-actions">
     <input type="submit" class="btn btn-primary" value="Announce">
   </div>

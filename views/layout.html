@@ -15,11 +15,15 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">RockawayHelpSMS</a>
+          <a class="brand" href="/">RockawayHelpSMS</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="/announce">Send an announcement</a></li>
+              <li {{ page | highlight('home') }}>
+                <a href="/">Home</a>
+              </li>
+              <li {{ page | highlight('announce') }}>
+                <a href="/announce">Send an announcement</a>
+              </li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
