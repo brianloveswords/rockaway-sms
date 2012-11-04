@@ -1,13 +1,14 @@
 var express = require('express');
 var http = require('http');
 var path = require('path');
-var api = require('./routes/api');
 var app = express();
+
+var nunjucks = require('nunjucks');
+var env = new nunjucks.Environment(new nunjucks.FileSystemLoader('views'));
+env.express(app);
 
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
@@ -20,6 +21,9 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
+var api = require('./routes/api');
+var view = require('./routes/view');
+var subscription = require('./routes/subscription');
 // API endpoints
 // -------------
 app.post('/v1/receive', [
@@ -27,13 +31,13 @@ app.post('/v1/receive', [
 ], api.capture);
 
 app.get('/v1/messages', api.listMessages);
-app.get('/v1/subscribers', api.listSubscribers);
+app.get('/v1/subscribers', [subscription.getAll], api.listSubscribers);
 
 
 // User facing
 // -----------
-app.get('/', function (req, res) {
-  res.send('sms app for rockawayhelp.com');
-});
+app.get('/', view.index);
+app.get('/announce', view.announce);
+app.get('/subscribers', [subscription.getAll], view.subscribers);
 
 module.exports = http.createServer(app);

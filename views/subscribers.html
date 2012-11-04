@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block "body" %}
+<h1>Subscriber List</h1>
+<ul>
+{% for subscriber in subscribers %}
+  <li> {{ subscriber.number }} </li>
+{% endfor %}
+</ul>
+{% endblock %}

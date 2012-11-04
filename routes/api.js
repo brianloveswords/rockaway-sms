@@ -44,7 +44,7 @@ function unsubscribeMsg(msg, callback) {
 }
 
 function routeNotFound(msg, cb) {
-  return cb(null, 'Message received')
+  return cb(null, 'Message received!')
 };
 
 // HTTP endpoints
@@ -92,14 +92,10 @@ exports.listMessages = function listMessages (req, res) {
 
 exports.listSubscribers = function listSubscribers (req, res) {
   const response = { status: 'ok' };
-  Subscription.find(function (err, subscribers) {
-    if (err) // #TODO: log this
-      return (err.code = 500, res.send(500, err));
-    response.subscribers = subscribers.map(function (sub) {
-      return { number: sub.number };
-    });
-    return res.send(response);
+  response.subscribers = req.subscribers.map(function (sub) {
+    return { number: sub.number };
   });
+  return res.send(response);
 };
 
 

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block "body" %}
+<h1>Send an Announcement</h1>
+<form method="post" action="?" class="announcement">
+  <div>
+    <label for="message">Message to send:</label>
+    <textarea id="message" maxlength="160" data-countdown='yes'></textarea>
+  </div>
+  <div class="form-actions">
+    <input type="submit" class="btn btn-primary" value="Announce">
+  </div>
+</form>
+{% endblock %}
