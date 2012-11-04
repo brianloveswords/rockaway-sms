@@ -17,3 +17,7 @@ form.announcement textarea {
 .message .actions button {
   width: 60px;
 }
+
+.message form {
+  display: inline;
+}

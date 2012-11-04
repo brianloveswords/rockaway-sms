@@ -56,6 +56,9 @@ app.get('/subscribers', [
   subscription.getAll()
 ], view.subscribers);
 
+app.delete('/message/:id', [
+  message.getFromParam('id')
+], message.dismiss);
 
 // Debugging
 // ---------
