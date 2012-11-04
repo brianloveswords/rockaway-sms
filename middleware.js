@@ -84,6 +84,25 @@ exports.csrf = function csrf(options) {
   }
 };
 
+exports.requireLogin = function requireLogin(options) {
+  options = options || {}
+  const redirect = options.redirect || '/login';
+  const field = options.field || 'user';
+  const whitelist = parseWhitelist(options.whitelist);
+  return function (req, res, next) {
+    const redirectPath = util.format('%s?path=%s', redirect, req.url);
+    const loginRe = RegExp('^' + redirect + '(\\?.*)?$');
+    if (req.url.match(loginRe))
+      return next();
+    if (isExempt(whitelist, req.url))
+      return next();
+    if (!req[field])
+      return res.redirect(303, redirectPath);
+    return next();
+  }
+};
+
+
 function uid(len) {
   return crypto.randomBytes(Math.ceil(len * 3 / 4))
     .toString('base64')

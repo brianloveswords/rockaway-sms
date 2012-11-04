@@ -19,6 +19,10 @@ app.configure(function(){
   app.use(middleware.flash());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use(middleware.requireLogin({
+    whitelist: ['/v1/*'],
+    field: 'admin'
+  }));
 });
 
 app.configure('development', function(){
@@ -29,6 +33,7 @@ const api = require('./routes/api');
 const view = require('./routes/view');
 const subscription = require('./routes/subscription');
 const user = require('./routes/user');
+const admin = require('./routes/admin');
 
 // API endpoints
 // -------------
@@ -64,6 +69,9 @@ app.post('/v1/broadcast', api.broadcastMessage);
 app.get('/', [
   user.getNeedy()
 ], view.index);
+
+app.get('/login', view.login);
+app.post('/login', admin.login);
 
 app.get('/announce', [
   user.getSubscribers()

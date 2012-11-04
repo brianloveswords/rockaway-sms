@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Login</h1>
+<button class="btn btn-primary js-login-button">Login with Persona</button>
+<form method="post" action="/login" class="js-persona-form">
+  {{ csrf | csrfElement }}
+  <input type="hidden" name="assertion" value="" class="js-persona-input">
+</form>
+
+{% endblock %}
+
+{% block footer %}
+  <script type="text/javascript" src="/js/login.js"></script>
+  <script type="text/javascript" src="https://login.persona.org/include.js"></script>
+{% endblock %}
