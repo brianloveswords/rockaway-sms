@@ -10,6 +10,7 @@ exports.announce = function announce(req, res) {
   User.broadcast(message, function (err, users) {
     if (err)
       return res.send(500, err);
+    req.flash('success', 'Announcement sent!');
     return res.redirect('/');
   });
 };
@@ -20,6 +21,7 @@ exports.dismissLatest = function dismissLatest(req, res) {
   user.save(function (err) {
     if (err)
       return res.send(500, err);
+    req.flash('Latest message from <strong>' + user.number + '</strong> hidden.');
     return res.redirect('back');
   })
 };
@@ -32,6 +34,7 @@ exports.reply = function reply(req, res) {
   user.sendReply({ body: message }, function (err) {
     if (err)
       return res.send(500, err);
+    req.flash('success', 'Reply sent. It may take a few seconds to get to the user\'s phone.')
     return res.redirect('back');
   })
 };
