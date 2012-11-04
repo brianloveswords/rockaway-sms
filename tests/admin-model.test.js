@@ -15,13 +15,21 @@ db.prepareTest(function () {
     });
   });
 
-  test('admin find or create', function (t) {
+  test('Admin.findOrCreate', function (t) {
     var person = { email: 'brian@example.org', owner: false };
     Admin.findOrCreate(person, function (err, admin) {
       t.same(admin.email, person.email);
       t.same(admin.level, 'schlub');
       t.end();
     });
+  });
+
+  test('Admin#isOwner', function (t) {
+    var admin = new Admin({ email: 'yup'});
+    t.same(admin.isOwner(), false, 'should not be owner');
+    admin.level = 'owner';
+    t.same(admin.isOwner(), true, 'should be owner');
+    t.end();
   });
 
   test('done', function (t) {

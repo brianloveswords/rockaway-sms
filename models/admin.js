@@ -26,4 +26,9 @@ Admin.findOrCreate = function findOrCreate(obj, callback) {
     update = { level: 'owner' };
   Admin.findOneAndUpdate(query, update, options, callback);
 };
+
+Admin.prototype.isOwner = function isOwner() {
+  return this.level === "owner";
+};
+
 module.exports = Admin;
