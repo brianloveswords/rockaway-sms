@@ -52,7 +52,7 @@ const UserSchema = new Schema({
 const User = db.model('User', UserSchema);
 
 User.Messages = {
-  UNSUBSCRIBE: 'You will no longer recieve any alert messages. To resubscibe, reply "subscribe".',
+  UNSUBSCRIBE: 'You will no longer receive any alert messages. To resubscibe, reply "subscribe".',
   SUBSCRIBE: 'You have been added to the alert list. You can stop receiving notifications at any time by texting "stop"',
   ALREADY_SUBSCRIBED: 'You are already on the list. If you wish to stop getting messages, reply with "stop"',
 };
