@@ -31,10 +31,11 @@ exports.checkAuth = function checkAuth(options) {
   const whitelist = new Exemptions(options.whitelist);
   const owner = env.get('owner');
   const redirect = options.redirect || '/unauthorized';
-
   return function (req, res, next) {
     const admin = req.session.admin;
     if (!admin || req.url === redirect || whitelist.check(req.url))
+      return next();
+    if (admin === owner)
       return next();
     return res.redirect(redirect);
   };

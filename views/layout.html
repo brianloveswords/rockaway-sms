@@ -20,8 +20,12 @@
             
             {% if admin %}
             <ul class="nav">
+              <li>
+                <a href="#">Admin</a>
+              </li>
+              
               <li {{ page | highlight('home') }}>
-                <a href="/">Home</a>
+                <a href="/">Incoming</a>
               </li>
               <li {{ page | highlight('announce') }}>
                 <a href="/announce">Send an announcement</a>
@@ -30,7 +34,7 @@
             {% endif %}
             
             <ul class="nav pull-right">
-              <li><a href="#">{{ phone | phoneFmt }}</a></li>
+              <li><a href="#">{{ admin }}</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
