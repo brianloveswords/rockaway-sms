@@ -46,6 +46,19 @@ exports.userInfo = function userInfo (req, res) {
   res.send(response);
 };
 
+exports.replyToUser = function replyToUser (req, res) {
+  const message = req.body.message;
+  const user = req.user;
+  var msgObj;
+  if (!message)
+    return res.send(400, { error: 'needs a message' });
+  user.sendReply({ body: message }, function (err) {
+    if (err)
+      return res.send(500, err);
+    msgObj = user.lastMessage();
+    return res.send({ status: 'ok', message: msgObj });
+  });
+};
 
 // Middleware
 // ----------

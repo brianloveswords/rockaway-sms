@@ -38,13 +38,18 @@ app.get('/v1/users', [
   user.getAll({exclude: ['messages']})
 ],api.listUsers);
 
-app.get('/v1/users/:id', [
+app.get('/v1/user/:id', [
   user.getOne('id')
 ], api.userInfo);
+
+app.post('/v1/user/:id/reply', [
+  user.getOne('id')
+], api.replyToUser);
 
 app.get('/v1/subscribers', [
   user.getSubscribers()
 ], api.listSubscribers);
+
 
 // User facing
 // -----------
