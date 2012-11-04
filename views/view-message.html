@@ -1,9 +1,37 @@
 {% extends "layout.html" %}
 {% block "body" %}
 
-<h1>From {{ message.from | phoneFmt }}:</h1>
+<h1>
+  Viewing message
+  <button class="btn">Mark as Resolved</button>
+</h1>
 <hr>
-<h2>“{{ message.body }}”</h2>
+<h2 class="message-byline">
+  From
+  <span class="who">{{ message.from | phoneFmt }}</span>
+  on
+  <span class="when">{{ message.date | dateFmt }}</span>
+</h2>
+<div class="well">
+  <h3>“{{ message.body }}”</h3>
+</div>
+
+{% if message.responses.length %}
+<h4>Replies</h4>
+
+<ul>
+{% for response in message.responses %}
+  <li class="response">
+    <span class="body">“{{ response.body }}”</span>
+    on
+    <span class="date">{{ response.date | dateFmt }}</span>
+  </li>
+{% endfor %}
+</ul>
+
+<hr>
+
+{% endif %}
 
 <form method="post" action="reply" class="reply">
   <label for="reply">Reply With:<label>

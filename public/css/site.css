@@ -22,3 +22,14 @@ form.reply textarea {
 .message .actions form {
   display: inline;
 }
+
+.message-byline {
+  color: #aaa;
+}
+.message-byline .who {
+  color: #333;
+}
+
+.message-byline .when {
+  color: #555;
+}
