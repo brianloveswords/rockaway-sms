@@ -32,6 +32,10 @@ const MessageSchema = new Schema({
     required: true,
     trim: true,
   },
+  type: {
+    type: String,
+    trim: true
+  },
   responses: {
     type: [ResponseSchema]
   }
