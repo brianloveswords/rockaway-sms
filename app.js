@@ -34,7 +34,13 @@ app.post('/v1/receive', [
   api.capture,
 ], api.respond );
 
-app.get('/v1/messages', api.listMessages);
+app.get('/v1/users', [
+  user.getAll({exclude: ['messages']})
+],api.listUsers);
+
+app.get('/v1/users/:id', [
+  user.getOne('id')
+], api.userInfo);
 
 app.get('/v1/subscribers', [
   user.getSubscribers()

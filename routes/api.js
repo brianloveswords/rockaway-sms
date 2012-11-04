@@ -26,31 +26,24 @@ exports.respond = function respond (req, res, next) {
   });
 };
 
-
-// exports.listMessages = function listMessages (req, res) {
-//   const response = { status: 'ok' };
-//   Message.find(function (err, messages) {
-//     if (err) // #TODO: log this
-//       return (err.code = 500, res.send(500, err));
-//     response.messages = messages.map(function (msg) {
-//       return {
-//         from: msg.from,
-//         body: msg.body,
-//         smsId: msg.smsId,
-//         date: msg.date,
-//         responses: msg.responses,
-//       };
-//     });
-//     return res.send(response);
-//   });
-// };
-
 exports.listSubscribers = function listSubscribers (req, res) {
   const response = { status: 'ok' };
   response.subscribers = req.subscribers.map(function (sub) {
     return { number: sub.number };
   });
   return res.send(response);
+};
+
+exports.listUsers = function listUsers (req, res) {
+  const response = { status: 'ok' };
+  response.users = req.users;
+  res.send(response);
+};
+
+exports.userInfo = function userInfo (req, res) {
+  const response = { status: 'ok' };
+  response.user = req.user;
+  res.send(response);
 };
 
 
