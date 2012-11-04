@@ -4,12 +4,17 @@
 <h1>Incoming Messages</h1>
 <ul>
 {% for message in messages %}
-<li>
+<li class="message">
   <p>
     From <code>{{ message.from | phoneFmt }}</code> on <strong>{{ message.date | dateFmt }}</strong>
   </p>
   <div class="well">
-     {{ message.body }}
+    <div class="actions">
+      <button class="js-reply btn btn-small btn-primary">Reply</button>
+      <button class="js-dismiss btn btn-small">Dismiss</button>
+    </div>
+    {{ message.body }}
+    <br style='clear: both;'>
   </div>
 </li>
 {% endfor %}

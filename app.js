@@ -20,10 +20,11 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-var api = require('./routes/api');
-var view = require('./routes/view');
-var subscription = require('./routes/subscription');
-var message = require('./routes/message');
+const api = require('./routes/api');
+const view = require('./routes/view');
+const subscription = require('./routes/subscription');
+const message = require('./routes/message');
+const debug = require('./routes/debug');
 
 // API endpoints
 // -------------
@@ -54,5 +55,11 @@ app.post('/announce', [
 app.get('/subscribers', [
   subscription.getAll()
 ], view.subscribers);
+
+
+// Debugging
+// ---------
+app.get('/debug/message', view.testMessage);
+app.post('/debug/message', debug.saveMessage);
 
 module.exports = http.createServer(app);

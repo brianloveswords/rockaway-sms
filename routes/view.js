@@ -16,4 +16,8 @@ exports.subscribers = function subscribers (req, res) {
     subscribers: req.subscribers,
   });
 };
-
+exports.testMessage = function testMessage (req, res) {
+  res.render('test-message.html', {
+    page: 'test-message',
+  });
+};
