@@ -16,6 +16,7 @@ app.configure(function(){
   app.use(middleware.cookieParser());
   app.use(middleware.session());
   app.use(middleware.csrf({ whitelist: ['/v1/*'] }));
+  app.use(middleware.flash());
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
 });
