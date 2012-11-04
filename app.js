@@ -17,14 +17,13 @@ app.configure(function(){
   app.use(middleware.session());
   app.use(middleware.csrf({ whitelist: ['/v1/*'] }));
   app.use(middleware.flash());
-  app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
   app.use(middleware.requireLogin({
-    whitelist: ['/v1/*'],
+    whitelist: ['/v1/recieve'],
     field: 'admin'
   }));
+  app.use(app.router);
 });
-
 app.configure('development', function(){
   app.use(express.errorHandler());
 });
@@ -34,6 +33,14 @@ const view = require('./routes/view');
 const subscription = require('./routes/subscription');
 const user = require('./routes/user');
 const admin = require('./routes/admin');
+
+
+// Model specific middleware
+// -----------------------------
+app.get('*', admin.checkAuth({
+  whitelist: ['/login', '/v1/recieve']
+}));
+app.get('*', view.template());
 
 // API endpoints
 // -------------
@@ -72,6 +79,8 @@ app.get('/', [
 
 app.get('/login', view.login);
 app.post('/login', admin.login);
+app.get('/logout', admin.logout);
+app.get('/unauthorized', view.unauthorized);
 
 app.get('/announce', [
   user.getSubscribers()

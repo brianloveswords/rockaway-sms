@@ -4,7 +4,7 @@ const ORIGIN = env.get('origin');
 
 function getCsrfToken(req) { return req.session._csrf }
 function getPhoneNumber() { return PHONE_NUMBER }
-function getAdmin(req) { return req.admin }
+function getAdmin(req) { return req.session.admin }
 function getFlash(req) { return req.flash() }
 function getOrigin(req) { return ORIGIN }
 
@@ -13,23 +13,34 @@ function each(obj, fn) {
     fn(k, obj[k]);
   });
 };
-function render(req, res) {
-  return function (path, obj) {
-    const base = {
-      csrf: getCsrfToken(req),
-      flash: getFlash(req),
-      phone: getPhoneNumber(req),
-      admin: getAdmin(req),
-      origin: getOrigin(),
-    };
-    each(obj, function (k, v) { base[k] = v });
-    return res.render(path, base);
+
+exports.template = function template(options) {
+  return function (req, res, next) {
+    res.template = function (path, obj) {
+      const templateVars = {
+        csrf: getCsrfToken(req),
+        flash: getFlash(req),
+        phone: getPhoneNumber(req),
+        admin: getAdmin(req),
+        origin: getOrigin(),
+      };
+      each(obj, function (k, v) { templateVars[k] = v });
+      return res.render(path, templateVars);
+    }
+    return next();
   }
-}
+};
+
 
 exports.login = function login (req, res) {
-  render(req, res)('login.html', {
+  res.template('login.html', {
     page: 'login',
+  });
+};
+
+exports.unauthorized = function unauthorized (req, res) {
+  res.template('unauthorized.html', {
+    page: 'unauthorized',
   });
 };
 

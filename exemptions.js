@@ -2,6 +2,7 @@
 function Exemptions(array) {
   if (!(this instanceof Exemptions))
     return new Exemptions(array);
+  array = array || [];
   this._list = array.map(function (entry) {
     if (typeof entry === 'string') {
       entry = entry.replace(/\*/g, '.*?');

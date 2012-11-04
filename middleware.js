@@ -1,17 +1,18 @@
-var env = require('./env');
-var express = require('express');
-var RedisStore = require('connect-redis')(express);
-var crypto = require('crypto');
-var logger = require('./logger');
-var util = require('util');
+const env = require('./env');
+const express = require('express');
+const RedisStore = require('connect-redis')(express);
+const crypto = require('crypto');
+const logger = require('./logger');
+const util = require('util');
+const Exemptions = require('./exemptions');
 
 exports.cookieParser = function () {
-  var secret = env.get('secret');
+  const secret = env.get('secret');
   return express.cookieParser(secret);
 };
 
 exports.session = function () {
-  var options = env.get('redis', {
+  const options = env.get('redis', {
     host: 'localhost',
     port: 6379,
   });
@@ -49,7 +50,7 @@ exports.flash = function () {
 /** Adapted from connect/lib/middleware/csrf.js */
 exports.csrf = function csrf(options) {
   options = options || {}
-  var whitelist = parseWhitelist(options.whitelist);
+  const whitelist = new Exemptions(options.whitelist);
 
   function getToken(req) {
     return (req.body && req.body._csrf)
@@ -59,7 +60,7 @@ exports.csrf = function csrf(options) {
 
   return function(req, res, next){
     var token, val, err;
-    if (isExempt(whitelist, req.url))
+    if (whitelist.check(req.url))
       return next();
 
     // generate CSRF token
@@ -88,44 +89,22 @@ exports.requireLogin = function requireLogin(options) {
   options = options || {}
   const redirect = options.redirect || '/login';
   const field = options.field || 'user';
-  const whitelist = parseWhitelist(options.whitelist);
+  const whitelist = new Exemptions(options.whitelist);
+
   return function (req, res, next) {
+    const user = req.session[field];
     const redirectPath = util.format('%s?path=%s', redirect, req.url);
     const loginRe = RegExp('^' + redirect + '(\\?.*)?$');
-    if (req.url.match(loginRe))
+    if (req.url.match(loginRe) || whitelist.check(req.url))
       return next();
-    if (isExempt(whitelist, req.url))
-      return next();
-    if (!req[field])
+    if (!user)
       return res.redirect(303, redirectPath);
     return next();
   }
 };
-
 
 function uid(len) {
   return crypto.randomBytes(Math.ceil(len * 3 / 4))
     .toString('base64')
     .slice(0, len);
 };
-
-function isExempt(whitelist, path) {
-  var i = whitelist.length;
-  while (i--) {
-    if (whitelist[i].test(path))
-      return true;
-  }
-  return false;
-}
-
-function parseWhitelist(array) {
-  if (!array)
-    return [];
-  return array.map(function (entry) {
-    if (typeof entry === 'string') {
-      entry = entry.replace('*', '.*?');
-      return RegExp('^' + entry + '$');
-    }
-    return entry;
-  });
-}
