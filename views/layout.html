@@ -17,6 +17,8 @@
           </a>
           <a class="brand" href="/">RockawayHelpSMS</a>
           <div class="nav-collapse collapse">
+            
+            {% if admin %}
             <ul class="nav">
               <li {{ page | highlight('home') }}>
                 <a href="/">Home</a>
@@ -25,6 +27,8 @@
                 <a href="/announce">Send an announcement</a>
               </li>
             </ul>
+            {% endif %}
+            
             <ul class="nav pull-right">
               <li><a href="#">{{ phone | phoneFmt }}</a></li>
             </ul>
