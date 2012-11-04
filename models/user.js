@@ -2,8 +2,8 @@ const db = require('./');
 const mongoose = require('mongoose');
 const Twilio = require('../twilio');
 const rerouter = require('../rerouter');
+const async = require('async');
 const Schema = mongoose.Schema;
-
 const MessageSchema = new Schema({
   date: {
     type: Date,
@@ -201,8 +201,7 @@ User.prototype.sendReply = function outgoing(msgObj, callback) {
 
   msgObj.type = 'answer';
   msgObj.direction = 'outgoing';
-  this.messages.push(msgObj);
-  this.save(function (err) {
+  this.addMessage(msgObj, function (err) {
     if (err)
       return callback(err);
     Twilio.SMS.create({
@@ -215,6 +214,19 @@ User.prototype.sendReply = function outgoing(msgObj, callback) {
 };
 
 /**
+ * Simple method for adding a message & saving
+ *
+ * @param {Message} msgObj
+ * @param {Function} callback
+ */
+
+User.prototype.addMessage = function addMessage(msgObj, callback) {
+  this.messages.push(msgObj);
+  this.save(callback);
+};
+
+
+/**
  * Send a broadcast out to all users who subscribe to the announcelist
  *
  * @param {String} message
@@ -224,12 +236,27 @@ User.prototype.sendReply = function outgoing(msgObj, callback) {
 User.broadcast = function broadcast(message, callback) {
   callback || function(){};
 
-  User.find({ receiveAnnouncements: true }, function (err, users) {
+  var numbers;
+  const query = { receiveAnnouncements: true };
+  const msgObj = {
+    body: message,
+    type: 'announcement',
+    direction: 'outgoing'
+  };
+
+  function addMessage(i, callback) {
+    return i.addMessage(msgObj, callback);
+  }
+
+  User.find(query, function (err, users) {
     if (err)
       return callback(err);
-    return callback(null, users);
+    numbers = users.map(function (inst) { return inst.number });
+    Twilio.SMS.announce(numbers, message);
+    async.map(users, addMessage, callback);
   });
 };
+
 
 
 module.exports = User;

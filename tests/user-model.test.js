@@ -11,7 +11,6 @@ function emit(name) {
     var args = [].slice.call(arguments);
     args.unshift(name);
     this.emit.apply(this, args);
-    this.removeAllListeners(name);
   }
 }
 Twilio.SMS.__proto__ = EventEmitter.prototype;
@@ -23,6 +22,7 @@ db.prepareTest({
   'user1': new User({
     number: '1',
     requiresAttention: false,
+    receiveAnnouncements: true,
   }),
   'user2': new User({
     number: '2',
@@ -40,6 +40,10 @@ db.prepareTest({
   'user4': new User({
     number: '4',
     requiresAttention: false,
+  }),
+  'user5': new User({
+    number: '5',
+    receiveAnnouncements: true,
   })
 }, function (fixtures) {
   test('User#save', function (t) {
@@ -59,12 +63,18 @@ db.prepareTest({
       body: 'oh heyyyyy',
       date: new Date()
     };
+
+    Twilio.SMS.once('create', function (opts) {
+      t.same(opts.to, user.number);
+      t.same(opts.body, message.body);
+      t.end();
+    });
+
     var savedMessage = user.sendReply(message)
     t.same(savedMessage.direction, 'outgoing', 'should be outgoing');
     t.same(savedMessage.type, 'answer', 'should be an answer');
     t.same(user.requiresAttention, false, 'should be false');
     t.same(user.mostRecentIncoming, undefined, 'should be undefined');
-    t.end();
   });
 
   test('User#captureIncoming: new user', function (t) {
@@ -190,13 +200,10 @@ db.prepareTest({
   test('User#needsConfirmation', function (t) {
     var user = new User({ lastConfirmation: Date.now() });
     t.same(user.needsConfirmation(), false);
-
     user.lastConfirmation = Date.now() - 86400000;
     t.same(user.needsConfirmation(), true);
-
     user.lastConfirmation = undefined;
     t.same(user.needsConfirmation(), true);
-
     t.end();
   });
 
@@ -210,6 +217,31 @@ db.prepareTest({
       t.end();
     });
     user.makeTwiMLResponse(testMessage);
+  });
+
+  test('User.broadcast', function (t) {
+    t.plan(4);
+    var expectMsg = 'calling all cars';
+    User.find({ receiveAnnouncements: true }, function (err, users) {
+      var expectNumbers = users.map(function (i) { return i.number });
+
+      Twilio.SMS.once('announce', function (numbers, message) {
+        t.same(numbers, expectNumbers);
+        t.same(message, expectMsg);
+      });
+
+      User.broadcast(expectMsg, function (err, recipients) {
+        t.notOk(err, 'should not have an error');
+        t.same(recipients.length, users.length);
+        recipients.forEach(function (r) {
+          var msgObj = r.messages.pop();
+          if (msgObj.type !== 'announcement')
+            t.fail('should be an announcement');
+          if (msgObj.body !== expectMsg)
+            t.fail('should have the right message');
+        });
+      });
+    });
   });
 
   test('close', function (t) {
