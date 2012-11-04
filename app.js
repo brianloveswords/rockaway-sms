@@ -38,6 +38,7 @@ app.get('/v1/subscribers', [subscription.getAll], api.listSubscribers);
 // -----------
 app.get('/', view.index);
 app.get('/announce', view.announce);
+app.post('/announce', [subscription.getAll], subscription.announce);
 app.get('/subscribers', [subscription.getAll], view.subscribers);
 
 module.exports = http.createServer(app);
