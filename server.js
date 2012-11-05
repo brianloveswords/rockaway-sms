@@ -1,5 +1,5 @@
-const env = require('./env');
+const habitat = require('habitat');
 const app = require('./app');
 if (!module.parent) {
-  app.listen(env.get('port', 3000));
+  app.listen(habitat.get('port', 3000));
 }
