@@ -10,11 +10,29 @@
     "twilio-js": "~0.1.1",
     "habitat": "0.4.0",
     "mongoose": "~3.3.1",
-    "tap": "~0.3.1",
     "async": "~0.1.22",
     "winston": "~0.6.2",
     "nunjucks": "~0.1.5",
     "dateformat": "~1.0.2-1.2.3",
     "connect-redis": "~1.4.5"
-  }
+  },
+  "readmeFilename": "README.md",
+  "description": "sms app for rockawayhelp.com",
+  "main": "app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "tap": "~0.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/brianloveswords/rockaway-sms.git"
+  },
+  "author": "Brian J. Brennan",
+  "license": "MIT",
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  }  
 }
