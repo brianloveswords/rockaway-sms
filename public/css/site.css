@@ -1,5 +1,22 @@
 body { padding-top: 60px; }
 
+footer {
+  color: #888;
+  background: #eee;
+  height: 60px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+footer h1 {
+  text-align: right;
+  float: right;
+}
+footer p {
+  padding: 20px;
+}
+
 .main-message-list {
   list-style: none;
   margin: 0;
@@ -13,7 +30,6 @@ body { padding-top: 60px; }
 .main-message-list h2 .date {
   color: #444;
 }
-
 .alert-error::before {
   content: "Oh no!";
   font-weight: bold;
