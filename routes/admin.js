@@ -116,9 +116,7 @@ exports.checkAuth = function checkAuth(options) {
   }
 
   return function (req, res, next) {
-    if (!req.session.admin ||
-        req.url === redirect ||
-        whitelist.check(req.url))
+    if (!req.session.admin)
       return next();
 
     const email = req.session.admin;
@@ -126,7 +124,9 @@ exports.checkAuth = function checkAuth(options) {
       if (err)
         return next(err);
       req.currentAdmin = admin;
-      if (admin.hasAccess(requiredLevel))
+      if (req.url === redirect ||
+          whitelist.check(req.url) ||
+          admin.hasAccess(requiredLevel))
         return next();
       return res.redirect(redirect);
     });
