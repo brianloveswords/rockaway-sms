@@ -170,9 +170,7 @@ User.prototype.makeTwiMLResponse = function makeTwiMLResponse(rawMsgObj) {
       ? User.Messages.MESSAGE_CONFIRMATION
       : null),
     unsubscribe: User.Messages.UNSUBSCRIBE,
-    subscribe: (this.receiveAnnouncements
-      ? User.Messages.ALREADY_SUBSCRIBED
-      : User.Messages.SUBSCRIBE),
+    subscribe: User.Messages.SUBSCRIBE,
   }
   const msg = msgs[route.type];
   return Twilio.SMS.reply({ to: this.number, msg: msg });
