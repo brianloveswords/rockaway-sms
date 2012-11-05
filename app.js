@@ -77,15 +77,25 @@ app.get('/', [
   user.getNeedy()
 ], view.index);
 
-app.get('/admin', [
+app.get('/admins', [
   admin.checkAuth({level: 'owner'}),
   admin.getAll()
 ], view.admin);
 
-app.post('/admin/update', [
+app.post('/admins', [
   admin.checkAuth({level: 'owner'}),
-  admin.getByEmail()
+], admin.create);
+
+app.patch('/admin/:id', [
+  admin.checkAuth({level: 'owner'}),
+  admin.getById(),
 ], admin.update);
+
+app.delete('/admin/:id', [
+  admin.checkAuth({level: 'owner'}),
+  admin.getById(),
+], admin.remove);
+
 
 app.get('/login', view.login);
 app.post('/login', admin.login);

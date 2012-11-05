@@ -2,16 +2,17 @@
   var $forms = $('.js-modify-admin-form');
   var $buttons = $forms.find('.js-action-button');
 
-  function getFormAction($btn) {
-    return $btn.data('action');
+  function getFormMethod($btn) {
+    return $btn.data('method');
   }
 
   $buttons.on('click', function (e) {
     var $btn = $(this);
     var $form = $btn.parent('form');
-    var action = getFormAction($btn);
-    $form.prop('action', action);
+    var $method = $form.find('.js-form-method');
+    $method.val(getFormMethod($btn));
 
+    $form.prop('action', action);
     $form.trigger('submit');
     return (e.preventDefault(), false);
   });

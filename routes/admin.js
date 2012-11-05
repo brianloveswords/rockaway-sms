@@ -3,8 +3,8 @@ const persona = require('../persona');
 const logger = require('../logger');
 const Admin = require('../models/admin')
 const Exemptions = require('../exemptions');
+const util = require('util');
 const OWNER = env.get('owner');
-
 // Endpoints
 // ---------
 exports.login = function login(req, res) {
@@ -25,24 +25,58 @@ exports.logout = function logout(req, res) {
   res.redirect('/login');
 };
 
-exports.update = function update(req, res) {
+
+function callbackGenerator(req, res, action) {
   const user = req.user;
-  user.changeLevel('admin', function (err) {
+  const format = 'User <em>%s</em> has been %s.';
+  const message = util.format(format, user.email, action);
+  return function (err) {
     if (err) {
       logger.error('error when updating user: ', err.message, err);
       res.send(500, err);
     }
-    req.flash('success', 'User <em>'+ user.email +'</em> added.')
+    req.flash('success', message);
     return res.redirect('back');
-  })
+  }
+}
+
+exports.create = function create(req, res) {
+  const email = req.body.email;
+
+  function callback(err, user) {
+    if (err) {
+      logger.error('error when updating user: ', err.message, err);
+      res.send(500, err);
+    }
+    req.flash('success', 'User ' + email + ' has been created.');
+    return res.redirect('back');
+  }
+
+  Admin.findOneAndUpdate(
+    {email: email},
+    {level: 'admin'},
+    {upsert: true },
+    callback
+  )
+};
+
+exports.update = function update(req, res) {
+  const callback = callbackGenerator(req, res, 'updated');
+  const level = req.body.level;
+  req.user.changeLevel(level, callback);
+};
+
+exports.remove = function remove(req, res) {
+  const callback = callbackGenerator(req, res, 'removed');
+  req.user.remove(callback);
 };
 
 // Middleware
 // ----------
-exports.getByEmail = function findByEmail(options) {
+exports.getById = function getById(options) {
   return function (req, res, next) {
-    const query = { email: req.body.email };
-    Admin.findOrCreate(query, function (err, admin) {
+    const id = req.param('id');
+    Admin.findById(id, function (err, admin) {
       if (err)
         return next(err);
       if (!admin)

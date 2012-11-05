@@ -3,7 +3,7 @@
 
 <h1>Administrate {{ phone | phoneFmt }}</h1>
 
-<form method="post" action="/admin/update" class="form-horizontal">
+<form method="post" action="/admins" class="form-horizontal">
   {{ csrf | csrfElement }}
   <div>
     <input name="email" type="email" class="input-large" placeholder="user@example.org">
@@ -18,24 +18,29 @@
   <ul>
     {% for admin in admins %}
     
-    {% if admin.id != currentAdmin.id %}
+    {% if admin.id != currentAdmin.id and admin.hasAccess("admin") %}
     <li>
       {{ admin.email }}
-      <form method="post" action="" class="js-modify-admin-form">
+      <form method="post" action="/admin/{{ admin.id }}" class="js-modify-admin-form">
         {{ csrf | csrfElement }}
-        <input type="hidden" name="email" value="{{ admin.email }}">
+        <input type="hidden" class="js-form-method" name="_method" value="post">
+        <input type="hidden" name="level" value="owner">
         
         <input
            type="submit"
            value="remove"
            class="btn btn-link btn-small js-action-button"
-           data-action="/admin/remove">
+           data-method="delete">
         |
-        <input
-           type="submit"
-           value="promote"
-           class="btn btn-link btn-small js-action-button"
-           data-action="/admin/promote">
+        {% if admin.level != "owner" %}
+          <input
+             type="submit"
+             value="promote"
+             class="btn btn-link btn-small js-action-button"
+             data-method="patch">
+        {% else %}
+          owner
+        {% endif %}
       </form>
     </li>
     
