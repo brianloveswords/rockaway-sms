@@ -18,3 +18,10 @@ test('advanced', function (t) {
   t.same(whitelist.check('chewbacca'), true, 'yes chewbacca');
   t.end();
 });
+
+test('urls', function (t) {
+  var thing = '/v1/receive';
+  const whitelist = Exemptions([thing]);
+  t.same(whitelist.check(thing), true);
+  t.end();
+});

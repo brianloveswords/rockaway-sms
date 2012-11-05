@@ -19,7 +19,7 @@ app.configure(function(){
   app.use(middleware.flash());
   app.use(express.static(path.join(__dirname, 'public')));
   app.use(middleware.requireLogin({
-    whitelist: ['/v1/recieve'],
+    whitelist: ['/v1/receive'],
     field: 'admin'
   }));
   app.use(app.router);
@@ -38,7 +38,7 @@ const admin = require('./routes/admin');
 // Model specific middleware
 // -----------------------------
 app.get('*', admin.checkAuth({
-  whitelist: ['/login', '/logout', '/v1/recieve']
+  whitelist: ['/login', '/logout', '/v1/receive']
 }));
 app.get('*', view.template());
 
