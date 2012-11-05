@@ -173,17 +173,17 @@ db.prepareTest({
     user.makeTwiMLResponse(testMessage);
   });
 
-  test('User#makeTwiMLResponse: start message, already subscribed', function (t) {
-    var user = fixtures['user4'];
-    var testMessage = {From: user.number, Body: 'subscribe', SmsId: 'some id' };
-    user.receiveAnnouncements = true;
-    Twilio.SMS.once('reply', function (opts) {
-      t.same(opts.to, user.number);
-      t.same(opts.msg, User.Messages.ALREADY_SUBSCRIBED);
-      t.end();
-    });
-    user.makeTwiMLResponse(testMessage);
-  });
+  // test('User#makeTwiMLResponse: start message, already subscribed', function (t) {
+  //   var user = fixtures['user4'];
+  //   var testMessage = {From: user.number, Body: 'subscribe', SmsId: 'some id' };
+  //   user.receiveAnnouncements = true;
+  //   Twilio.SMS.once('reply', function (opts) {
+  //     t.same(opts.to, user.number);
+  //     t.same(opts.msg, User.Messages.ALREADY_SUBSCRIBED);
+  //     t.end();
+  //   });
+  //   user.makeTwiMLResponse(testMessage);
+  // });
 
   test('User#makeTwiMLResponse: generic message', function (t) {
     var oneDay = 24 * 60 * 60 * 1000;
